@@ -47,8 +47,11 @@ const ProfilePage = () => {
         />
         <Box className="w-full h-full max-w-6xl flex flex-col mt-8 p-14 mx-auto">
           <Box className="w-full flex flex-row items-center justify-center gap-36">
-            <Avatar className="aspect-square w-[150px] h-[150px] -mb-[100px]">
-              {user.image || user.fname[0] || "A"}
+            <Avatar
+              src={user.avatar}
+              className="aspect-square w-[150px] h-[150px] -mb-[100px]"
+            >
+              {user.fname[0] || "A"}
             </Avatar>
           </Box>
           <Paper

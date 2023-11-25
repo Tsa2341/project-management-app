@@ -137,14 +137,14 @@ const NavBarContent = ({ setOpen, open }) => {
                 color: "text.secondary"
               }}
               className="avatar text-32 font-bold w-96 h-96 border-[0.5px] border-white"
-              src={user?.image}
+              src={user?.avatar}
               alt="avatar"
             >
               {user?.fname[0] || "A"}
             </Avatar>
           </div>
           <Typography className="username text-14 whitespace-nowrap font-medium text-white">
-            {user?.role}
+            {user?.username}
           </Typography>
           <Typography
             className="email text-13 whitespace-nowrap font-medium"

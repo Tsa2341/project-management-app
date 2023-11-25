@@ -3,10 +3,15 @@ import axiosInstance from "../../axiosInstance"
 import catchAxiosError from "../../utils/catchAxiosError"
 
 export const authRegister = createAsyncThunk("auth/register", async (data) => {
-  const res = await catchAxiosError(
-    async () => await axiosInstance.post("/user/signup", data)
+  const formData = new FormData()
+
+  Object.keys(data).forEach((key) => {
+    formData.append(key, data[key])
+  })
+
+  await catchAxiosError(
+    async () => await axiosInstance.post("/user/signup", formData)
   )
-  return res
 })
 
 export const authLogin = createAsyncThunk("auth/login", async (data) => {
@@ -15,6 +20,24 @@ export const authLogin = createAsyncThunk("auth/login", async (data) => {
   )
   return res.data.data.user
 })
+
+export const updateUser = createAsyncThunk(
+  "auth/updateUser",
+  async ({ data, id }) => {
+    const formData = new FormData()
+
+    Object.keys(data).forEach((key) => {
+      if (data[key]) {
+        formData.append(key, data[key])
+      }
+    })
+
+    const res = await catchAxiosError(
+      async () => await axiosInstance.patch(`/user/${id}`, formData)
+    )
+    return res.data.data
+  }
+)
 
 const initialState = {
   user: null
@@ -31,6 +54,15 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder.addCase(authLogin.fulfilled, (state, action) => {
       state.user = action.payload
+    })
+    builder.addCase(updateUser.fulfilled, (state, action) => {
+      state.user = action.payload
+      const oldUser = localStorage.getItem("user")
+      const parsedOldUser = oldUser ? JSON.parse(oldUser) : {}
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ ...parsedOldUser, ...action.payload })
+      )
     })
   }
 })

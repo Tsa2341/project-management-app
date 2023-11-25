@@ -1,6 +1,6 @@
 import AddRoundedIcon from "@mui/icons-material/AddRounded"
-import { Box, Button, Paper, Typography } from "@mui/material"
-import React, { useEffect, useState } from "react"
+import { Box, Button, IconButton, Paper, Typography } from "@mui/material"
+import React, { PureComponent, useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Header from "../../components/Header"
@@ -8,10 +8,42 @@ import StatusDot from "../../components/StatusDot"
 import CustomTable from "../../components/table/CustomTable"
 import {
   getAllProjects,
-  selectAllProjects
+  selectAllProjects,
+  setSelectedProject
 } from "../../store/reducers/projects.reducer"
 import formatDate from "../../utils/formatDate"
 import ProjectCreateModal from "./partials/ProjectCreateModal"
+import EditIcon from "@mui/icons-material/Edit"
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded"
+import ProjectEditModal from "./partials/ProjectEditModal"
+import ProjectDeleteModal from "./partials/ProjectDeleteModal"
+
+export const ProjectsActions = ({ project }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleEdit = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedProject(project))
+    navigate(`/dashboard/projects/edit`)
+  }
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedProject(project))
+    navigate(`/dashboard/projects/delete`)
+  }
+
+  return (
+    <Box className="flex flex-row gap-1 items-center justify-center">
+      <IconButton color="secondary" onClick={handleEdit}>
+        <EditIcon />
+      </IconButton>
+      <IconButton color="error" onClick={handleDelete}>
+        <DeleteForeverRoundedIcon />
+      </IconButton>
+    </Box>
+  )
+}
 
 export const projectRows = [
   {
@@ -59,11 +91,21 @@ export const projectRows = [
   },
   {
     id: "createdAt",
-    align: "right",
+    align: "center",
     disablePadding: false,
     label: "Created At",
     sort: true,
     format: formatDate
+  },
+  {
+    id: "actions",
+    align: "center",
+    disablePadding: false,
+    label: "Actions",
+    sort: false,
+    format: (_, n) => {
+      return <ProjectsActions project={n} />
+    }
   }
 ]
 
@@ -72,8 +114,9 @@ const ProjectsPage = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { id } = useParams()
+  const [selected, setSelected] = useState(null)
   const projects = useSelector(selectAllProjects)
-  const [projectCreateModalOpen, setProjectCreateModalOpen] = useState(false)
+  const [openProjectModal, setOpenProjectModal] = useState(false)
 
   const handleClick = (n) => {
     navigate(`/dashboard/projects/${n.id}`)
@@ -81,9 +124,13 @@ const ProjectsPage = () => {
 
   useEffect(() => {
     if (location.pathname === "/dashboard/projects/create") {
-      setProjectCreateModalOpen(true)
+      setOpenProjectModal("create")
+    } else if (location.pathname === "/dashboard/projects/edit") {
+      setOpenProjectModal("edit")
+    } else if (location.pathname === "/dashboard/projects/delete") {
+      setOpenProjectModal("delete")
     } else {
-      setProjectCreateModalOpen(false)
+      setOpenProjectModal(null)
     }
   }, [location.pathname])
 
@@ -118,7 +165,9 @@ const ProjectsPage = () => {
           />
         </Paper>
       </Box>
-      {projectCreateModalOpen && <ProjectCreateModal />}
+      {openProjectModal === "create" && <ProjectCreateModal />}
+      {openProjectModal === "edit" && <ProjectEditModal />}
+      {openProjectModal === "delete" && <ProjectDeleteModal />}
     </>
   )
 }

@@ -15,7 +15,7 @@ import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import _ from "lodash"
 import { Controller, useForm } from "react-hook-form"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import * as yup from "yup"
 import GuardAuthRoot from "./GuardAuthRoot"
 import countries from "../utils/countries"
@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux"
 import { authRegister } from "../store/reducers/auth.reducer"
 import { toast } from "react-toastify"
 import CountryFlag from "../components/CountryFlag"
+import handleReadFileAsync from "../utils/handleReadFileAsync"
 
 const schema = yup.object().shape({
   username: yup.string().required("You must enter your user name"),
@@ -45,7 +46,6 @@ const schema = yup.object().shape({
 const defaultValues = {
   fname: "",
   lname: "",
-  image: "",
   phone: "",
   country: "Rwanda",
   location: "",
@@ -56,7 +56,9 @@ const defaultValues = {
 }
 
 function SignUpPage() {
+  const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [image, setImage] = useState("")
   const [loading, setLoading] = useState(false)
   const {
     control,
@@ -72,13 +74,21 @@ function SignUpPage() {
   function onSubmit(form) {
     const formData = form
     delete formData.passwordConfirm
+    delete formData.avatar
+
+    if (image) {
+      formData.avatar = image.file
+    }
 
     setLoading(true)
     dispatch(authRegister(formData)).then(({ error, payload }) => {
       if (error) {
         toast.error(error.message)
       } else {
-        console.log(payload)
+        toast.success("Registered successfully. Redirecting to login shortly!")
+        setTimeout(() => {
+          navigate("/login")
+        }, [3000])
       }
       setLoading(false)
     })
@@ -88,7 +98,7 @@ function SignUpPage() {
     <>
       <GuardAuthRoot>
         <div className="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-1 min-w-0 h-full w-full overflow-y-auto">
-          <Paper className="h-full sm:h-auto sm:max-h-full sm:max-w-[620px] md:flex md:items-center md:justify-end w-full md:h-full md:w-1/2 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none ltr:border-r-1 rtl:border-l-1 overflow-auto">
+          <Paper className="h-full sm:h-auto sm:max-h-full max-w-[620px] md:max-w-full md:flex md:items-center md:justify-end w-full md:h-full md:w-1/2 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none ltr:border-r-1 rtl:border-l-1 overflow-auto">
             <div className="py-8 px-16 sm:p-48 md:p-64 pt-32 w-full max-w-[620px] mx-auto sm:mx-0 max-h-full overflow-y-auto">
               <Typography className="text-4xl font-extrabold tracking-tight leading-tight">
                 Sign up
@@ -116,23 +126,27 @@ function SignUpPage() {
                         color: "text.secondary"
                       }}
                       className="object-cover w-full h-full text-64 font-bold"
-                      src={watch("image")}
+                      src={image?.url}
                       alt="image url"
                     >
-                      {(watch("image") || "A")[0]}
+                      {"A"}
                     </Avatar>
                   </Box>
                   <Controller
-                    name="image"
+                    name="avatar"
                     control={control}
                     render={({ field }) => (
                       <TextField
-                        {...field}
+                        onChange={async (e) => {
+                          setImage(await handleReadFileAsync(e))
+                        }}
+                        InputLabelProps={{ shrink: true }}
                         label="Image Url"
                         autoFocus
-                        type="text"
-                        error={!!errors.image}
-                        helperText={errors?.image?.message}
+                        type="file"
+                        error={!!errors.avatar}
+                        helperText={errors?.avatar?.message}
+                        inputProps={{ accept: "image/*" }}
                         variant="outlined"
                         fullWidth
                       />

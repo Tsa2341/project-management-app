@@ -172,8 +172,7 @@ const usersRow = [
     align: "center",
     disablePadding: false,
     label: "Joined",
-    sort: true,
-    format: formatDate
+    sort: true
   }
 ]
 
@@ -196,38 +195,22 @@ const ProjectDetailsPage = () => {
         <Typography>{description}</Typography>
       </Paper>
 
-      <Paper className="mt-16">
-        <Typography
-          className="text-2xl font-extrabold m-20"
-          color="text.secondary"
-        >
-          Project&apos;s Tasks
-        </Typography>
-        <Box className="overflow-auto mb-20">
-          <CustomTable
-            data={Tasks}
-            handleClick={(n) => navigate("/dashboard/tasks/id")}
-            rows={tasksRows}
-          />
-        </Box>
-      </Paper>
+      <CustomTable
+        className="mt-16"
+        title="Project's Tasks"
+        data={Tasks}
+        handleClick={(n) => navigate("/dashboard/tasks/id")}
+        rows={Tasks.length > 0 ? tasksRows : null}
+      />
 
-      <Paper className="mt-16">
-        <Typography
-          className="text-2xl font-extrabold m-20"
-          color="text.secondary"
-        >
-          Project&apos;s Users
-        </Typography>
-        <Box className="overflow-auto mb-20">
-          <CustomTable
-            name="users"
-            data={Users}
-            handleClick={(n) => navigate("/dashboard/users/id")}
-            rows={Users.length > 0 ? usersRow : null}
-          />
-        </Box>
-      </Paper>
+      <CustomTable
+        className="mt-16"
+        title="Project's Users"
+        name="users"
+        data={Users}
+        handleClick={(n) => navigate("/dashboard/users/id")}
+        rows={Users.length > 0 ? usersRow : null}
+      />
     </Box>
   )
 }

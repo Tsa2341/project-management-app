@@ -29,6 +29,14 @@ const dashboardRoutes = [
           {
             path: "create",
             element: <Outlet />
+          },
+          {
+            path: "edit",
+            element: <Outlet />
+          },
+          {
+            path: "delete",
+            element: <Outlet />
           }
         ]
       },

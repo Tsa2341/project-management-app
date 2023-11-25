@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup"
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
 import {
   Avatar,
   Box,
@@ -19,44 +20,42 @@ import {
 import React, { memo, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useDispatch, useSelector } from "react-redux"
-import * as yup from "yup"
-import countries from "../../../utils/countries"
 import { useNavigate } from "react-router-dom"
-import { selectUser } from "../../../store/reducers/auth.reducer"
-import Loading from "../../../components/Loading"
-import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
+import { toast } from "react-toastify"
+import * as yup from "yup"
 import CountryFlag from "../../../components/CountryFlag"
+import Loading from "../../../components/Loading"
+import { selectUser, updateUser } from "../../../store/reducers/auth.reducer"
+import { selectUserByUserName } from "../../../store/reducers/users.reducer"
+import countries from "../../../utils/countries"
+import handleReadFileAsync from "../../../utils/handleReadFileAsync"
 
 const schema = yup.object().shape({
-  username: yup.string().required("You must enter your user name"),
-  fname: yup.string().required("You must enter your first name"),
-  lname: yup.string().required("You must enter your last name"),
-  phone: yup.number().required("You must enter your phone number"),
-  country: yup.string().required("You must enter your country"),
-  location: yup.string().required("You must enter your Address"),
-  email: yup
-    .string()
-    .email("You must enter a valid email")
-    .required("You must enter your email"),
-  password: yup.string().required("Please enter your password.")
+  fname: yup.string(),
+  lname: yup.string(),
+  phone: yup.string(),
+  country: yup.string(),
+  location: yup.string(),
+  password: yup.string()
 })
 
 const defaultValues = {
   fname: "",
   lname: "",
-  image: "",
   phone: "",
   country: "Rwanda",
   location: "",
-  email: "",
-  username: "",
   password: ""
 }
 
 const EditProfileModal = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [image, setImage] = useState(null)
   const user = useSelector(selectUser)
+  const userWithId = useSelector((state) =>
+    selectUserByUserName(state, user.username)
+  )
   const [loading, setLoading] = useState(false)
   const {
     control,
@@ -74,16 +73,27 @@ const EditProfileModal = () => {
     !loading && navigate("/dashboard/profile")
   }
 
-  const onSubmit = (form) => {
+  function onSubmit(form) {
+    const id = userWithId?.id
+
+    if (!id) return
+
+    const formData = form
+    delete formData.avatar
+
+    if (image?.file) {
+      formData.avatar = image.file
+    }
+
     setLoading(true)
-    // dispatch(authRegister(formData)).then(({ error, payload }) => {
-    //   if (error) {
-    //     toast.error(error.message)
-    //   } else {
-    //     console.log(payload)
-    //   }
-    //   setLoading(false)
-    // })
+    dispatch(updateUser({ data: formData, id })).then(({ error, payload }) => {
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success("Updated profile successfully")
+      }
+      setLoading(false)
+    })
   }
 
   useEffect(() => {
@@ -136,23 +146,27 @@ const EditProfileModal = () => {
                   color: "text.secondary"
                 }}
                 className="object-cover w-full h-full text-64 font-bold"
-                src={watch("image")}
+                src={image?.url}
                 alt="image url"
               >
-                {(watch("image") || "A")[0]}
+                {"A"}
               </Avatar>
             </Box>
             <Controller
-              name="image"
+              name="avatar"
               control={control}
               render={({ field }) => (
                 <TextField
-                  {...field}
+                  onChange={async (e) => {
+                    setImage(await handleReadFileAsync(e))
+                  }}
+                  InputLabelProps={{ shrink: true }}
                   label="Image Url"
                   autoFocus
-                  type="text"
-                  error={!!errors.image}
-                  helperText={errors?.image?.message}
+                  type="file"
+                  error={!!errors.avatar}
+                  helperText={errors?.avatar?.message}
+                  inputProps={{ accept: "image/*" }}
                   variant="outlined"
                   fullWidth
                 />
@@ -194,26 +208,6 @@ const EditProfileModal = () => {
                     type="name"
                     error={!!errors.lname}
                     helperText={errors?.lname?.message}
-                    variant="outlined"
-                    required
-                    fullWidth
-                  />
-                )}
-              />
-            </GridItem>
-            <GridItem>
-              <Controller
-                name="username"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className="mb-24"
-                    label="User name"
-                    autoFocus
-                    type="name"
-                    error={!!errors.username}
-                    helperText={errors?.username?.message}
                     variant="outlined"
                     required
                     fullWidth
@@ -303,25 +297,6 @@ const EditProfileModal = () => {
                     type="text"
                     error={!!errors.location}
                     helperText={errors?.location?.message}
-                    variant="outlined"
-                    required
-                    fullWidth
-                  />
-                )}
-              />
-            </GridItem>
-            <GridItem>
-              <Controller
-                name="email"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className="mb-24"
-                    label="Email"
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors?.email?.message}
                     variant="outlined"
                     required
                     fullWidth

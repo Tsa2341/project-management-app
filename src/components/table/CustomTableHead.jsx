@@ -34,6 +34,9 @@ function CustomTableHead({ rows, order, onRequestSort }) {
                 padding={row.disablePadding ? "none" : "normal"}
                 sortDirection={order.id === row.id ? order.direction : false}
               >
+                {!row.sort && (
+                  <span className="cursor-pointer">{row.label}</span>
+                )}
                 {row.sort && (
                   <Tooltip
                     title="Sort"
