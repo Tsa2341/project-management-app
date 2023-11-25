@@ -1,8 +1,13 @@
-import { Navigate } from "react-router-dom"
+import { Navigate, Outlet } from "react-router-dom"
 import DashBoard from "./DashBoard"
-import ProfilePage from "./ProfilePage"
-import ProjectsPage from "./ProjectsPage"
-import UsersPage from "./UsersPage"
+import ProfilePage from "./profile/ProfilePage"
+import ProjectsPage from "./projects/ProjectsPage"
+import UsersPage from "./users/UsersPage"
+import ProjectDetailsPage from "./projects/ProjectDetailsPage"
+import TasksPage from "./tasks/TasksPage"
+import TaskDetailsPage from "./tasks/TaskDetailsPage"
+import UserDetailsPage from "./users/UserDetailsPage"
+import UserCreateModal from "./users/partials/UserCreateModal"
 
 const dashboardRoutes = [
   {
@@ -15,15 +20,55 @@ const dashboardRoutes = [
       },
       {
         path: "projects",
-        element: <ProjectsPage />
+        element: <ProjectsPage />,
+        children: [
+          {
+            path: ":id",
+            element: <ProjectDetailsPage />
+          },
+          {
+            path: "create",
+            element: <Outlet />
+          }
+        ]
+      },
+      {
+        path: "tasks",
+        element: <TasksPage />,
+        children: [
+          {
+            path: ":id",
+            element: <TaskDetailsPage />
+          },
+          {
+            path: "create",
+            element: <Outlet />
+          }
+        ]
       },
       {
         path: "users",
-        element: <UsersPage />
+        element: <UsersPage />,
+        children: [
+          {
+            path: ":id",
+            element: <UserDetailsPage />
+          },
+          {
+            path: "create",
+            element: <UserCreateModal />
+          }
+        ]
       },
       {
         path: "profile",
-        element: <ProfilePage />
+        element: <ProfilePage />,
+        children: [
+          {
+            path: "edit",
+            element: <Outlet />
+          }
+        ]
       }
     ]
   }

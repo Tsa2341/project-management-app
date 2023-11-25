@@ -18,6 +18,8 @@ import clsx from "clsx"
 import React, { memo } from "react"
 import { darkTheme } from "../../theme"
 import NavBarItem from "./NavBarItem"
+import { useSelector } from "react-redux"
+import { selectUser } from "../../store/reducers/auth.reducer"
 
 const navbarWidth = 280
 
@@ -109,8 +111,10 @@ const NavBar = ({ open, setOpen }) => {
 }
 
 const NavBarContent = ({ setOpen, open }) => {
+  const user = useSelector(selectUser)
+
   return (
-    <Stack className="flex flex-auto flex-col overflow-hidden h-full">
+    <Stack className="flex flex-auto flex-col overflow-y-auto h-full">
       <div className="flex flex-row items-center shrink-0 h-48 md:h-72 px-20">
         <IconButton
           className="w-40 h-40 p-0"
@@ -133,20 +137,20 @@ const NavBarContent = ({ setOpen, open }) => {
                 color: "text.secondary"
               }}
               className="avatar text-32 font-bold w-96 h-96 border-[0.5px] border-white"
-              // src={user.data.photoURL}
+              src={user?.image}
               alt="avatar"
             >
-              A
+              {user?.fname[0] || "A"}
             </Avatar>
           </div>
           <Typography className="username text-14 whitespace-nowrap font-medium text-white">
-            Manager
+            {user?.role}
           </Typography>
           <Typography
             className="email text-13 whitespace-nowrap font-medium"
             color="text.secondary"
           >
-            email@gmail.com
+            {user?.email}
           </Typography>
         </Stack>
 
@@ -161,36 +165,43 @@ const NavBarContent = ({ setOpen, open }) => {
               icon: (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
                   viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="w-20 h-20"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M7.502 6h7.128A3.375 3.375 0 0118 9.375v9.375a3 3 0 003-3V6.108c0-1.505-1.125-2.811-2.664-2.94a48.972 48.972 0 00-.673-.05A3 3 0 0015 1.5h-1.5a3 3 0 00-2.663 1.618c-.225.015-.45.032-.673.05C8.662 3.295 7.554 4.542 7.502 6zM13.5 3A1.5 1.5 0 0012 4.5h4.5A1.5 1.5 0 0015 3h-1.5z"
-                    clipRule="evenodd"
-                  />
-                  <path
-                    fillRule="evenodd"
-                    d="M3 9.375C3 8.339 3.84 7.5 4.875 7.5h9.75c1.036 0 1.875.84 1.875 1.875v11.25c0 1.035-.84 1.875-1.875 1.875h-9.75A1.875 1.875 0 013 20.625V9.375zM6 12a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V12zm2.25 0a.75.75 0 01.75-.75h3.75a.75.75 0 010 1.5H9a.75.75 0 01-.75-.75zM6 15a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V15zm2.25 0a.75.75 0 01.75-.75h3.75a.75.75 0 010 1.5H9a.75.75 0 01-.75-.75zM6 18a.75.75 0 01.75-.75h.008a.75.75 0 01.75.75v.008a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V18zm2.25 0a.75.75 0 01.75-.75h3.75a.75.75 0 010 1.5H9a.75.75 0 01-.75-.75z"
-                    clipRule="evenodd"
+                    fill="currentColor"
+                    d="M19 4h-4.18a2.988 2.988 0 0 0-5.64 0H5a2.006 2.006 0 0 0-2 2v14a2.006 2.006 0 0 0 2 2h14a2.006 2.006 0 0 0 2-2V6a2.006 2.006 0 0 0-2-2Zm-7 0a1 1 0 1 1-1 1a1.003 1.003 0 0 1 1-1Zm-2 5l2.79 2.794l2.52-2.52L14 8h4v4l-1.276-1.311l-3.932 3.935L10 11.83l-2.586 2.584L6 13Zm9 10H5v-2h14Z"
                   />
                 </svg>
               ),
-              title: "projects"
+              title: "Projects"
             }}
-            onItemClick={() => {
-              console.log("CLicked")
+          />
+          <NavBarItem
+            item={{
+              url: "/dashboard/tasks",
+              icon: (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="currentColor"
+                    d="M17.75 2.001a2.25 2.25 0 0 1 2.245 2.096L20 4.25v10.128c-.12.08-.235.174-.341.28l-3.409 3.408l-.908-.91a2.242 2.242 0 0 0-1.5-.657h2.408a.75.75 0 1 0 0-1.5h-5.004a.75.75 0 0 0 0 1.5h2.413a2.25 2.25 0 0 0-1.5 3.838L13.817 22H6.25a2.25 2.25 0 0 1-2.245-2.096L4 19.75V4.251a2.25 2.25 0 0 1 2.096-2.245l.154-.005h11.5ZM9 7.751a1 1 0 1 0-2 0a1 1 0 0 0 2 0ZM11.246 7a.75.75 0 0 0 0 1.5h5.004a.75.75 0 1 0 0-1.5h-5.004Zm-.75 4.75c0 .414.336.75.75.75h5.004a.75.75 0 1 0 0-1.5h-5.004a.75.75 0 0 0-.75.75ZM9 11.75a1 1 0 1 0-2 0a1 1 0 0 0 2 0Zm0 3.998a1 1 0 1 0-2 0a1 1 0 0 0 2 0Zm7.25 4.441l4.47-4.47a.75.75 0 1 1 1.06 1.061l-5 5a.75.75 0 0 1-1.06 0l-2.5-2.501a.75.75 0 0 1 1.06-1.06l1.97 1.97Z"
+                  />
+                </svg>
+              ),
+              title: "Tasks"
             }}
           />
           <NavBarItem
             item={{
               url: "/dashboard/users",
               icon: <GroupIcon size="20" />,
-              title: "users"
-            }}
-            onItemClick={() => {
-              console.log("CLicked")
+              title: "Users"
             }}
           />
 
@@ -201,9 +212,6 @@ const NavBarContent = ({ setOpen, open }) => {
               icon: <PersonIcon size="20" />,
               title: "profile"
             }}
-            onItemClick={() => {
-              console.log("CLicked")
-            }}
           />
           <NavBarItem
             item={{
@@ -211,9 +219,6 @@ const NavBarContent = ({ setOpen, open }) => {
               icon: <LogoutIcon size="20" />,
               title: "Sign out",
               className: "self-end"
-            }}
-            onItemClick={() => {
-              console.log("CLicked")
             }}
           />
         </StyledList>

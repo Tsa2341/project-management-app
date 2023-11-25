@@ -35,23 +35,23 @@ const UserMenu = () => {
       >
         <div className="hidden md:flex flex-col mx-4 items-end">
           <Typography component="span" className="font-semibold flex">
-            {user.name}
+            {user?.fname} {user?.lname}
           </Typography>
           <Typography
             className="text-11 font-medium capitalize"
             color="text.secondary"
           >
-            {user.role.toString()}
-            {(!user.role ||
-              (Array.isArray(user.role) && user.role.length === 0)) &&
+            {user?.role.toString()}
+            {(!user?.role ||
+              (Array.isArray(user?.role) && user?.role.length === 0)) &&
               "Guest"}
           </Typography>
         </div>
 
-        {user.image ? (
-          <Avatar className="md:mx-4" alt="user photo" src={user.image} />
+        {user?.avatar ? (
+          <Avatar className="md:mx-4" alt="user photo" src={user?.avatar} />
         ) : (
-          <Avatar className="md:mx-4">{user.name[0]}</Avatar>
+          <Avatar className="md:mx-4">{user?.fname[0]}</Avatar>
         )}
       </Button>
 

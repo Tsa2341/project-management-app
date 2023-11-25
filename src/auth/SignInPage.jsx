@@ -5,51 +5,53 @@ import Paper from "@mui/material/Paper"
 import TextField from "@mui/material/TextField"
 import Typography from "@mui/material/Typography"
 import _ from "lodash"
-import { useEffect } from "react"
 import { Controller, useForm } from "react-hook-form"
+import { useDispatch } from "react-redux"
 import { Link, useNavigate } from "react-router-dom"
+import { toast } from "react-toastify"
 import * as yup from "yup"
+import { authLogin } from "../store/reducers/auth.reducer"
 import GuardAuthRoot from "./GuardAuthRoot"
+import { useState } from "react"
 
 const schema = yup.object().shape({
-  email: yup
-    .string()
-    .email("You must enter a valid email")
-    .required("You must enter a email"),
-  password: yup
-    .string()
-    .required("Please enter your password.")
-    .min(4, "Password is too short - must be at least 4 chars.")
+  username: yup.string().required("You must enter a username"),
+  password: yup.string().required("Please enter your password.")
 })
 
 const defaultValues = {
-  email: "",
+  username: "",
   password: ""
 }
 
 function SignInPage() {
+  const dispatch = useDispatch()
   const navigate = useNavigate()
-  const { control, formState, handleSubmit, setError, setValue } = useForm({
-    mode: "onChange",
+  const [loading, setLoading] = useState(false)
+  const {
+    control,
+    formState: { errors },
+    handleSubmit,
+    setError,
+    setValue
+  } = useForm({
+    mode: "onSubmit",
     defaultValues,
     resolver: yupResolver(schema)
   })
 
-  const { isValid, dirtyFields, errors } = formState
-
-  useEffect(() => {
-    setValue("email", "admin@fusetheme.com", {
-      shouldDirty: true,
-      shouldValidate: true
+  function onSubmit({ username, password }) {
+    setLoading(true)
+    dispatch(authLogin({ username, password })).then(({ error, payload }) => {
+      if (error) {
+        toast.error(error.message)
+      } else {
+        localStorage.setItem("token", payload.token)
+        localStorage.setItem("user", JSON.stringify(payload))
+        navigate("dashboard")
+      }
+      setLoading(false)
     })
-    setValue("password", "admin", { shouldDirty: true, shouldValidate: true })
-  }, [setValue])
-
-  function onSubmit({ email, password }) {
-    localStorage.setItem("token", "afasvasdasvdavfasvdfadvav")
-    localStorage.setItem("role", "manager")
-
-    navigate("login")
   }
 
   return (
@@ -74,7 +76,7 @@ function SignInPage() {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Controller
-                name="email"
+                name="username"
                 control={control}
                 render={({ field }) => (
                   <TextField
@@ -82,9 +84,9 @@ function SignInPage() {
                     className="mb-24"
                     label="Email"
                     autoFocus
-                    type="email"
-                    error={!!errors.email}
-                    helperText={errors?.email?.message}
+                    type="text"
+                    error={!!errors.username}
+                    helperText={errors?.username?.message}
                     variant="outlined"
                     required
                     fullWidth
@@ -113,9 +115,9 @@ function SignInPage() {
               <Button
                 variant="contained"
                 color="secondary"
-                className=" w-full mt-16"
+                className="w-full mt-16"
                 aria-label="Sign in"
-                disabled={_.isEmpty(dirtyFields) || !isValid}
+                disabled={loading}
                 type="submit"
                 size="large"
               >

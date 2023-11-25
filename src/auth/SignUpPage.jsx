@@ -1,5 +1,14 @@
 import { yupResolver } from "@hookform/resolvers/yup"
-import { Stack } from "@mui/material"
+import {
+  Avatar,
+  Box,
+  FormControl,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  Stack
+} from "@mui/material"
 import Button from "@mui/material/Button"
 import Paper from "@mui/material/Paper"
 import TextField from "@mui/material/TextField"
@@ -9,72 +18,79 @@ import { Controller, useForm } from "react-hook-form"
 import { Link } from "react-router-dom"
 import * as yup from "yup"
 import GuardAuthRoot from "./GuardAuthRoot"
+import countries from "../utils/countries"
+import { useEffect, useState } from "react"
+import { useDispatch } from "react-redux"
+import { authRegister } from "../store/reducers/auth.reducer"
+import { toast } from "react-toastify"
+import CountryFlag from "../components/CountryFlag"
 
-/**
- * Form Validation Schema
- */
 const schema = yup.object().shape({
-  displayName: yup.string().required("You must enter display name"),
+  username: yup.string().required("You must enter your user name"),
+  fname: yup.string().required("You must enter your first name"),
+  lname: yup.string().required("You must enter your last name"),
+  phone: yup.number().required("You must enter your phone number"),
+  country: yup.string().required("You must enter your country"),
+  location: yup.string().required("You must enter your Address"),
   email: yup
     .string()
     .email("You must enter a valid email")
-    .required("You must enter a email"),
-  password: yup
-    .string()
-    .required("Please enter your password.")
-    .min(8, "Password is too short - should be 8 chars minimum."),
+    .required("You must enter your email"),
+  password: yup.string().required("Please enter your password."),
   passwordConfirm: yup
     .string()
-    .oneOf([yup.ref("password"), null], "Passwords must match"),
-  acceptTermsConditions: yup
-    .boolean()
-    .oneOf([true], "The terms and conditions must be accepted.")
+    .oneOf([yup.ref("password"), null], "Passwords must match")
 })
 
 const defaultValues = {
-  displayName: "",
+  fname: "",
+  lname: "",
+  image: "",
+  phone: "",
+  country: "Rwanda",
+  location: "",
   email: "",
+  username: "",
   password: "",
-  passwordConfirm: "",
-  acceptTermsConditions: false
+  passwordConfirm: ""
 }
 
 function SignUpPage() {
-  const { control, formState, handleSubmit, reset } = useForm({
-    mode: "onChange",
+  const dispatch = useDispatch()
+  const [loading, setLoading] = useState(false)
+  const {
+    control,
+    formState: { isDirt, isValid, errors },
+    handleSubmit,
+    watch
+  } = useForm({
+    mode: "onSubmit",
     defaultValues,
     resolver: yupResolver(schema)
   })
 
-  const { isValid, dirtyFields, errors, setError } = formState
+  function onSubmit(form) {
+    const formData = form
+    delete formData.passwordConfirm
 
-  function onSubmit({ displayName, password, email }) {
-    // jwtService
-    //   .createUser({
-    //     displayName,
-    //     password,
-    //     email
-    //   })
-    //   .then((user) => {
-    //     // No need to do anything, registered user data will be set at app/auth/AuthContext
-    //   })
-    //   .catch((_errors) => {
-    //     _errors.forEach((error) => {
-    //       setError(error.type, {
-    //         type: "manual",
-    //         message: error.message
-    //       })
-    //     })
-    //   })
+    setLoading(true)
+    dispatch(authRegister(formData)).then(({ error, payload }) => {
+      if (error) {
+        toast.error(error.message)
+      } else {
+        console.log(payload)
+      }
+      setLoading(false)
+    })
   }
 
   return (
     <>
       <GuardAuthRoot>
-        <div className="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-1 min-w-0">
-          <Paper className="h-full sm:h-auto md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-16 sm:p-48 md:p-64 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none ltr:border-r-1 rtl:border-l-1">
-            <div className="w-full max-w-320 sm:w-320 mx-auto sm:mx-0">
-              <Typography className="mt-32 text-4xl font-extrabold tracking-tight leading-tight">
+        <div className="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-1 min-w-0 h-full w-full overflow-y-auto">
+          <Paper className="h-full sm:h-auto sm:max-h-full sm:max-w-[620px] md:flex md:items-center md:justify-end w-full md:h-full md:w-1/2 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none ltr:border-r-1 rtl:border-l-1 overflow-auto">
+            <div className="py-8 px-16 sm:p-48 md:p-64 pt-32 w-full max-w-[620px] mx-auto sm:mx-0 max-h-full overflow-y-auto">
+              <Typography className="text-4xl font-extrabold tracking-tight leading-tight">
                 Sign up
               </Typography>
               <div className="flex items-baseline mt-2 font-medium">
@@ -87,21 +103,179 @@ function SignUpPage() {
               <form
                 name="registerForm"
                 noValidate
-                className="flex flex-col justify-center w-full mt-32"
-                onSubmit={handleSubmit(onSubmit)}
+                className="flex flex-col justify-center w-full pt-32"
+                onSubmit={handleSubmit(onSubmit, (...props) => {
+                  console.error(props)
+                })}
               >
+                <Stack direction="row" gap={1} className="items-center mb-24">
+                  <Box className="aspect-square h-[100px]">
+                    <Avatar
+                      sx={{
+                        backgroundColor: "background.default",
+                        color: "text.secondary"
+                      }}
+                      className="object-cover w-full h-full text-64 font-bold"
+                      src={watch("image")}
+                      alt="image url"
+                    >
+                      {(watch("image") || "A")[0]}
+                    </Avatar>
+                  </Box>
+                  <Controller
+                    name="image"
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        label="Image Url"
+                        autoFocus
+                        type="text"
+                        error={!!errors.image}
+                        helperText={errors?.image?.message}
+                        variant="outlined"
+                        fullWidth
+                      />
+                    )}
+                  />
+                </Stack>
+
                 <Controller
-                  name="displayName"
+                  name="fname"
                   control={control}
                   render={({ field }) => (
                     <TextField
                       {...field}
                       className="mb-24"
-                      label="Display name"
+                      label="First name"
                       autoFocus
                       type="name"
-                      error={!!errors.displayName}
-                      helperText={errors?.displayName?.message}
+                      error={!!errors.fname}
+                      helperText={errors?.fname?.message}
+                      variant="outlined"
+                      required
+                      fullWidth
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="lname"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className="mb-24"
+                      label="Last name"
+                      autoFocus
+                      type="name"
+                      error={!!errors.lname}
+                      helperText={errors?.lname?.message}
+                      variant="outlined"
+                      required
+                      fullWidth
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="username"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className="mb-24"
+                      label="User name"
+                      autoFocus
+                      type="name"
+                      error={!!errors.username}
+                      helperText={errors?.username?.message}
+                      variant="outlined"
+                      required
+                      fullWidth
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="phone"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className="mb-24"
+                      label="Phone Number"
+                      autoFocus
+                      type="tel"
+                      error={!!errors.phone}
+                      helperText={errors?.phone?.message}
+                      variant="outlined"
+                      required
+                      fullWidth
+                    />
+                  )}
+                />
+
+                <Controller
+                  name="country"
+                  control={control}
+                  render={({ field }) => (
+                    <FormControl required>
+                      <InputLabel id="country">Country</InputLabel>
+                      <Select
+                        {...field}
+                        id="country"
+                        className="mb-24"
+                        label="Country"
+                        autoFocus
+                        type="text"
+                        error={!!errors.country}
+                        variant="outlined"
+                        required
+                        fullWidth
+                        startAdornment={
+                          countries.find(
+                            (country) => country.name === watch("country")
+                          ) && (
+                            <InputAdornment position="start">
+                              <CountryFlag country={watch("country")} />
+                            </InputAdornment>
+                          )
+                        }
+                      >
+                        {countries.map((country) => (
+                          <MenuItem key={country.iso} value={country.name}>
+                            <Box
+                              component="span"
+                              className="w-24 h-16 overflow-hidden"
+                              sx={{
+                                background:
+                                  "url('/images/flags.png') no-repeat 0 0",
+                                backgroundSize: "24px 3876px",
+                                backgroundPosition: country.flagImagePos
+                              }}
+                            />
+                            <span className="ml-8 font-medium">
+                              {country.name}
+                            </span>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  )}
+                />
+
+                <Controller
+                  name="location"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      {...field}
+                      className="mb-24"
+                      label="Address"
+                      type="text"
+                      error={!!errors.location}
+                      helperText={errors?.location?.message}
                       variant="outlined"
                       required
                       fullWidth
@@ -164,15 +338,16 @@ function SignUpPage() {
                 />
 
                 <Button
+                  role="button"
                   variant="contained"
                   color="secondary"
                   className="w-full mt-24"
                   aria-label="Register"
-                  disabled={_.isEmpty(dirtyFields) || !isValid}
+                  disabled={loading}
                   type="submit"
                   size="large"
                 >
-                  Create your free account
+                  Sign Up
                 </Button>
               </form>
             </div>

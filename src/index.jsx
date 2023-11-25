@@ -6,14 +6,18 @@ import {
   ThemeProvider,
   alpha
 } from "@mui/material"
+import { LocalizationProvider } from "@mui/x-date-pickers"
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns"
 import React from "react"
 import ReactDOM from "react-dom/client"
 import { Provider } from "react-redux"
 import { RouterProvider } from "react-router-dom"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
 import "./index.css"
 import router from "./routes"
 import store from "./store/store"
-import { darkTheme, lightTheme } from "./theme"
+import { lightTheme } from "./theme"
 
 const inputGlobalStyles = (
   <GlobalStyles
@@ -97,15 +101,14 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <StyledEngineProvider injectFirst>
         <ThemeProvider theme={lightTheme}>
           <CacheProvider value={cache}>
-            {inputGlobalStyles}
-            <RouterProvider router={router} />
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              {inputGlobalStyles}
+              <ToastContainer />
+              <RouterProvider router={router} />
+            </LocalizationProvider>
           </CacheProvider>
         </ThemeProvider>
       </StyledEngineProvider>
     </Provider>
   </React.StrictMode>
 )
-
-// ReactDOM.createRoot(document.getElementById("root")).render(
-//   <div>Hello world</div>
-// )
