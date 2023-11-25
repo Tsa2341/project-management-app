@@ -21,7 +21,7 @@ export const authLogin = createAsyncThunk("auth/login", async (data) => {
   return res.data.data.user
 })
 
-export const updateUser = createAsyncThunk(
+export const updateAuthUser = createAsyncThunk(
   "auth/updateUser",
   async ({ data, id }) => {
     const formData = new FormData()
@@ -55,7 +55,7 @@ const authSlice = createSlice({
     builder.addCase(authLogin.fulfilled, (state, action) => {
       state.user = action.payload
     })
-    builder.addCase(updateUser.fulfilled, (state, action) => {
+    builder.addCase(updateAuthUser.fulfilled, (state, action) => {
       state.user = action.payload
       const oldUser = localStorage.getItem("user")
       const parsedOldUser = oldUser ? JSON.parse(oldUser) : {}

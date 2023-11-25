@@ -25,8 +25,9 @@ import { toast } from "react-toastify"
 import * as yup from "yup"
 import CountryFlag from "../../../components/CountryFlag"
 import { authRegister } from "../../../store/reducers/auth.reducer"
-import countries from "../../../utils/countries"
 import { getAllUsers } from "../../../store/reducers/users.reducer"
+import countries from "../../../utils/countries"
+import handleReadFileAsync from "../../../utils/handleReadFileAsync"
 
 const schema = yup.object().shape({
   username: yup.string().required("You must enter your user name"),
@@ -61,13 +62,13 @@ const defaultValues = {
 const UserCreateModal = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const [image, setImage] = useState(null)
   const [loading, setLoading] = useState(false)
   const {
     control,
     formState: { errors },
     handleSubmit,
-    watch,
-    setValue
+    watch
   } = useForm({
     mode: "onSubmit",
     defaultValues,
@@ -81,6 +82,11 @@ const UserCreateModal = () => {
   const onSubmit = (form) => {
     const formData = form
     delete formData.passwordConfirm
+    delete formData.avatar
+
+    if (image) {
+      formData.avatar = image.file
+    }
 
     formData.phone = formData.phone.toString()
 
@@ -141,10 +147,10 @@ const UserCreateModal = () => {
                       color: "text.secondary"
                     }}
                     className="object-cover w-full h-full text-64 font-bold"
-                    src={watch("avatar")}
-                    alt="avatar url"
+                    src={image?.url}
+                    alt="image url"
                   >
-                    {(watch("avatar") || "A")[0]}
+                    {"A"}
                   </Avatar>
                 </Box>
                 <Controller
@@ -152,12 +158,16 @@ const UserCreateModal = () => {
                   control={control}
                   render={({ field }) => (
                     <TextField
-                      {...field}
+                      onChange={async (e) => {
+                        setImage(await handleReadFileAsync(e))
+                      }}
+                      InputLabelProps={{ shrink: true }}
                       label="Image Url"
                       autoFocus
-                      type="text"
+                      type="file"
                       error={!!errors.avatar}
                       helperText={errors?.avatar?.message}
+                      inputProps={{ accept: "image/*" }}
                       variant="outlined"
                       fullWidth
                     />

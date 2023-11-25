@@ -64,7 +64,6 @@ const ProjectCreateModal = () => {
   }
 
   const onSubmit = (form) => {
-    console.log(form)
     setLoading(true)
     dispatch(createProject(form)).then(({ error, payload }) => {
       if (error) {

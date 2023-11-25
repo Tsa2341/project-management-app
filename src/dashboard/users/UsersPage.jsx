@@ -1,17 +1,58 @@
 import AddRoundedIcon from "@mui/icons-material/AddRounded"
-import { Avatar, Box, Button, Paper, Typography } from "@mui/material"
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded"
+import EditIcon from "@mui/icons-material/Edit"
+import {
+  Avatar,
+  Box,
+  Button,
+  IconButton,
+  Paper,
+  Typography
+} from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
+import CountryFlag from "../../components/CountryFlag"
 import Header from "../../components/Header"
 import StatusDot from "../../components/StatusDot"
 import CustomTable from "../../components/table/CustomTable"
-import { getAllUsers, selectAllUsers } from "../../store/reducers/users.reducer"
+import {
+  selectAllUsers,
+  setSelectedUser
+} from "../../store/reducers/users.reducer"
 import formatDate from "../../utils/formatDate"
 import UserCreateModal from "./partials/UserCreateModal"
-import CountryFlag from "../../components/CountryFlag"
+import UserDeleteModal from "./partials/UserDeleteModal"
+import UserEditModal from "./partials/UserEditModal"
 
-const rows = [
+export const UsersActions = ({ user }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleEdit = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedUser(user))
+    navigate(`/dashboard/users/edit`)
+  }
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedUser(user))
+    navigate(`/dashboard/users/delete`)
+  }
+
+  return (
+    <Box className="flex flex-row gap-1 items-center justify-center">
+      <IconButton color="secondary" onClick={handleEdit}>
+        <EditIcon />
+      </IconButton>
+      <IconButton color="error" onClick={handleDelete}>
+        <DeleteForeverRoundedIcon />
+      </IconButton>
+    </Box>
+  )
+}
+
+export const userRows = [
   {
     id: "avatar",
     align: "left",
@@ -103,6 +144,16 @@ const rows = [
     label: "Joined",
     sort: true,
     format: formatDate
+  },
+  {
+    id: "actions",
+    align: "center",
+    disablePadding: false,
+    label: "Actions",
+    sort: false,
+    format: (_, n) => {
+      return <UsersActions user={n} />
+    }
   }
 ]
 
@@ -112,7 +163,7 @@ const UsersPage = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
   const users = useSelector(selectAllUsers)
-  const [userCreateModalOpen, setUserCreateModalOpen] = useState(false)
+  const [openUserModal, setOpenUserModal] = useState(false)
 
   const handleClick = (n) => {
     navigate(`/dashboard/users/${n.id}`)
@@ -120,9 +171,13 @@ const UsersPage = () => {
 
   useEffect(() => {
     if (location.pathname === "/dashboard/users/create") {
-      setUserCreateModalOpen(true)
+      setOpenUserModal("create")
+    } else if (location.pathname === "/dashboard/users/edit") {
+      setOpenUserModal("edit")
+    } else if (location.pathname === "/dashboard/users/delete") {
+      setOpenUserModal("delete")
     } else {
-      setUserCreateModalOpen(false)
+      setOpenUserModal(null)
     }
   }, [location.pathname])
 
@@ -150,10 +205,13 @@ const UsersPage = () => {
           ]}
         />
         <Paper className="overflow-auto mt-14 min-h-36" elevation={0}>
-          <CustomTable rows={rows} handleClick={handleClick} data={users} />
+          <CustomTable rows={userRows} handleClick={handleClick} data={users} />
         </Paper>
       </Box>
-      {userCreateModalOpen && <UserCreateModal />}
+
+      {openUserModal === "create" && <UserCreateModal />}
+      {openUserModal === "edit" && <UserEditModal />}
+      {openUserModal === "delete" && <UserDeleteModal />}
     </>
   )
 }

@@ -51,6 +51,14 @@ const dashboardRoutes = [
           {
             path: "create",
             element: <Outlet />
+          },
+          {
+            path: "edit",
+            element: <Outlet />
+          },
+          {
+            path: "delete",
+            element: <Outlet />
           }
         ]
       },
@@ -64,7 +72,15 @@ const dashboardRoutes = [
           },
           {
             path: "create",
-            element: <UserCreateModal />
+            element: <Outlet />
+          },
+          {
+            path: "edit",
+            element: <Outlet />
+          },
+          {
+            path: "delete",
+            element: <Outlet />
           }
         ]
       },

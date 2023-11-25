@@ -26,24 +26,13 @@ import { useNavigate } from "react-router-dom"
 import { toast } from "react-toastify"
 import * as yup from "yup"
 import { selectAllProjects } from "../../../store/reducers/projects.reducer"
-import { createTask, getAllTasks } from "../../../store/reducers/tasks.reducer"
+import { editTask, getAllTasks } from "../../../store/reducers/tasks.reducer"
 import { selectAllUsers } from "../../../store/reducers/users.reducer"
 import handleReadFileAsync from "../../../utils/handleReadFileAsync"
 
 const schema = yup.object().shape({
   name: yup.string().required("You must enter the task name"),
   description: yup.string().required("You must enter the task description"),
-  // file: yup
-  //   .mixed()
-  //   .test(
-  //     "fileSize",
-  //     "The file is too large. Use atl east less than 200mb",
-  //     (value) => {
-  //       if (!value.length) return true
-  //       return value[0].size <= 200000
-  //     }
-  //   )
-  //   .required("You must enter the task file"),
   start_date: yup
     .date()
     .min(new Date(), "Start Date can't be before now")
@@ -69,7 +58,7 @@ const defaultValues = {
   project_id: ""
 }
 
-const TaskCreateModal = () => {
+const TaskEditModal = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const projects = useSelector(selectAllProjects)
@@ -92,31 +81,28 @@ const TaskCreateModal = () => {
   }
 
   const onSubmit = (form) => {
-    const formData = { ...form }
-    formData.file = file
-    formData.users = JSON.stringify(
-      formData.users.map(
-        (formUser) => users.find((n) => n.username === formUser).id
-      )
-    )
-
-    setLoading(true)
-    dispatch(createTask(formData)).then(({ error, payload }) => {
-      if (error) {
-        toast.error(error.message)
-        setLoading(false)
-      } else {
-        toast.success("Task created Successfully!")
-        dispatch(getAllTasks()).then(({ error, payload }) => {
-          if (error) {
-            toast.error(error.message)
-          } else {
-            handleClose()
-          }
-          setLoading(false)
-        })
-      }
-    })
+    // const formData = { ...form }
+    // formData.file = file.file
+    // formData.users = formData.users.map(
+    //   (formUser) => users.find((n) => n.username === formUser).id
+    // )
+    // setLoading(true)
+    // dispatch(editTask(formData)).then(({ error, payload }) => {
+    //   if (error) {
+    //     toast.error(error.message)
+    //     setLoading(false)
+    //   } else {
+    //     toast.success("Task editd Successfully!")
+    //     dispatch(getAllTasks()).then(({ error, payload }) => {
+    //       if (error) {
+    //         toast.error(error.message)
+    //       } else {
+    //         handleClose()
+    //       }
+    //       setLoading(false)
+    //     })
+    //   }
+    // })
   }
 
   return (
@@ -132,7 +118,7 @@ const TaskCreateModal = () => {
           className="w-full items-center justify-between"
         >
           <Typography color="text.secondary" className="text-4xl font-bold">
-            Create Task
+            Edit Task
           </Typography>
 
           <IconButton onClick={handleClose} className="w-40 h-40">
@@ -195,8 +181,8 @@ const TaskCreateModal = () => {
 
             <Grid item xs={12}>
               <TextField
-                onChange={(e) => {
-                  setFile(e.target.files[0])
+                onChange={async (e) => {
+                  setFile(await handleReadFileAsync(e))
                 }}
                 className="mb-24"
                 label="File"
@@ -205,7 +191,6 @@ const TaskCreateModal = () => {
                 error={!!errors.file}
                 helperText={errors?.file?.message}
                 InputLabelProps={{ shrink: true }}
-                inputProps={{ accept: ".pdf" }}
                 variant="outlined"
                 fullWidth
                 required
@@ -363,7 +348,7 @@ const TaskCreateModal = () => {
             type="submit"
             size="large"
           >
-            Create Task
+            Edit Task
           </Button>
         </form>
       </Paper>
@@ -371,4 +356,4 @@ const TaskCreateModal = () => {
   )
 }
 
-export default memo(TaskCreateModal)
+export default memo(TaskEditModal)

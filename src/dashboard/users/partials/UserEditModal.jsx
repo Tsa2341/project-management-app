@@ -25,10 +25,9 @@ import { toast } from "react-toastify"
 import * as yup from "yup"
 import CountryFlag from "../../../components/CountryFlag"
 import {
-  selectUser,
-  updateAuthUser
-} from "../../../store/reducers/auth.reducer"
-import { selectUserByUserName } from "../../../store/reducers/users.reducer"
+  selectSelectedUser,
+  updateUser
+} from "../../../store/reducers/users.reducer"
 import countries from "../../../utils/countries"
 import handleReadFileAsync from "../../../utils/handleReadFileAsync"
 
@@ -50,14 +49,11 @@ const defaultValues = {
   password: ""
 }
 
-const EditProfileModal = () => {
+const UserEditModal = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const [image, setImage] = useState(null)
-  const user = useSelector(selectUser)
-  const userWithId = useSelector((state) =>
-    selectUserByUserName(state, user.username)
-  )
+  const user = useSelector(selectSelectedUser)
   const [loading, setLoading] = useState(false)
   const {
     control,
@@ -72,11 +68,11 @@ const EditProfileModal = () => {
   })
 
   const handleClose = () => {
-    !loading && navigate("/dashboard/profile")
+    !loading && navigate("/dashboard/users")
   }
 
   function onSubmit(form) {
-    const id = userWithId?.id
+    const id = user?.id
 
     if (!id) return
 
@@ -88,22 +84,23 @@ const EditProfileModal = () => {
     }
 
     setLoading(true)
-    dispatch(updateAuthUser({ data: formData, id })).then(
-      ({ error, payload }) => {
-        if (error) {
-          toast.error(error.message)
-        } else {
-          toast.success("Updated profile successfully")
-        }
-        setLoading(false)
+    dispatch(updateUser({ data: formData, id })).then(({ error, payload }) => {
+      if (error) {
+        toast.error(error.message)
+      } else {
+        toast.success("Edited user successfully")
+        handleClose()
       }
-    )
+      setLoading(false)
+    })
   }
 
   useEffect(() => {
     if (user) {
       Object.keys(defaultValues).map((key) => {
-        setValue(key, user[key], { shouldDirty: true, shouldTouch: true })
+        if (key !== "password") {
+          setValue(key, user[key], { shouldDirty: true, shouldTouch: true })
+        }
       })
     }
   }, [user])
@@ -125,7 +122,7 @@ const EditProfileModal = () => {
           className="w-full items-center justify-between"
         >
           <Typography color="text.secondary" className="text-4xl font-bold">
-            Edit Profile
+            Edit User
           </Typography>
 
           <IconButton onClick={handleClose} className="w-40 h-40">
@@ -134,7 +131,7 @@ const EditProfileModal = () => {
         </Stack>
 
         <form
-          name="editProfileForm"
+          name="editUserForm"
           noValidate
           className="flex flex-col justify-center w-full pt-32"
           onSubmit={handleSubmit(onSubmit, (...props) => {
@@ -338,7 +335,7 @@ const EditProfileModal = () => {
             type="submit"
             size="large"
           >
-            Edit Profile
+            Edit User
           </Button>
         </form>
       </Paper>
@@ -354,4 +351,4 @@ const GridItem = ({ children }) => {
   )
 }
 
-export default memo(EditProfileModal)
+export default memo(UserEditModal)

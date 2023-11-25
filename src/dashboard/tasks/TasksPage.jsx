@@ -1,14 +1,48 @@
 import AddRoundedIcon from "@mui/icons-material/AddRounded"
-import { Box, Button, Paper, Typography } from "@mui/material"
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded"
+import EditIcon from "@mui/icons-material/Edit"
+import { Box, Button, IconButton, Paper, Typography } from "@mui/material"
 import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Header from "../../components/Header"
 import StatusDot from "../../components/StatusDot"
 import CustomTable from "../../components/table/CustomTable"
-import { getAllTasks, selectAllTasks } from "../../store/reducers/tasks.reducer"
+import {
+  selectAllTasks,
+  setSelectedTask
+} from "../../store/reducers/tasks.reducer"
 import formatDate from "../../utils/formatDate"
 import TaskCreateModal from "./partials/TaskCreateModal"
+import TaskDeleteModal from "./partials/TaskDeleteModal"
+import TaskEditModal from "./partials/TaskEditModal"
+
+export const TasksActions = ({ task }) => {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const handleEdit = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedTask(task))
+    navigate(`/dashboard/tasks/edit`)
+  }
+  const handleDelete = (e) => {
+    e.stopPropagation()
+    dispatch(setSelectedTask(task))
+    navigate(`/dashboard/tasks/delete`)
+  }
+
+  return (
+    <Box className="flex flex-row gap-1 items-center justify-center">
+      <IconButton color="secondary" onClick={handleEdit}>
+        <EditIcon />
+      </IconButton>
+      <IconButton color="error" onClick={handleDelete}>
+        <DeleteForeverRoundedIcon />
+      </IconButton>
+    </Box>
+  )
+}
 
 export const tasksRows = [
   {
@@ -39,14 +73,6 @@ export const tasksRows = [
     )
   },
   {
-    id: "Project",
-    align: "center",
-    disablePadding: false,
-    label: "Project",
-    sort: true,
-    format: (Project) => Project.name
-  },
-  {
     id: "start_date",
     align: "center",
     disablePadding: false,
@@ -64,11 +90,35 @@ export const tasksRows = [
   },
   {
     id: "createdAt",
-    align: "right",
+    align: "center",
     disablePadding: false,
     label: "Created At",
     sort: true,
     format: formatDate
+  },
+  {
+    id: "file",
+    align: "right",
+    disablePadding: false,
+    label: "File",
+    sort: true,
+    format: (value) => {
+      return value ? (
+        <Typography color="secondary" className="max-w-[300px] break-all">
+          {value}
+        </Typography>
+      ) : (
+        "No FIle"
+      )
+    }
+  },
+  {
+    id: "actions",
+    align: "center",
+    disablePadding: true,
+    label: "Actions",
+    sort: false,
+    format: (_, n) => <TasksActions task={n} />
   }
 ]
 
@@ -78,7 +128,7 @@ const TasksPage = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
   const tasks = useSelector(selectAllTasks)
-  const [taskCreateModalOpen, setTaskCreateModalOpen] = useState(false)
+  const [openTaskModal, setOpenTaskModal] = useState(false)
 
   const handleClick = (n) => {
     navigate(`/dashboard/tasks/${n.id}`)
@@ -86,9 +136,13 @@ const TasksPage = () => {
 
   useEffect(() => {
     if (location.pathname === "/dashboard/tasks/create") {
-      setTaskCreateModalOpen(true)
+      setOpenTaskModal("create")
+    } else if (location.pathname === "/dashboard/tasks/edit") {
+      setOpenTaskModal("edit")
+    } else if (location.pathname === "/dashboard/tasks/delete") {
+      setOpenTaskModal("delete")
     } else {
-      setTaskCreateModalOpen(false)
+      setOpenTaskModal(null)
     }
   }, [location.pathname])
 
@@ -123,7 +177,10 @@ const TasksPage = () => {
           />
         </Paper>
       </Box>
-      {taskCreateModalOpen && <TaskCreateModal />}
+
+      {openTaskModal === "create" && <TaskCreateModal />}
+      {openTaskModal === "edit" && <TaskEditModal />}
+      {openTaskModal === "delete" && <TaskDeleteModal />}
     </>
   )
 }

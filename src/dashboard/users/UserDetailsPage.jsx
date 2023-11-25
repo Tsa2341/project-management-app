@@ -28,8 +28,12 @@ const UserDetailsPage = () => {
 
       <Box className="w-full max-w-6xl flex flex-col mt-8 p-14 mx-auto">
         <Box className="w-full flex flex-row items-center justify-center gap-36">
-          <Avatar className="aspect-square w-[150px] h-[150px] -mb-[100px]">
-            {user.image || user.fname[0] || "A"}
+          <Avatar
+            src={user?.avatar}
+            alt="avatar"
+            className="aspect-square w-[150px] h-[150px] -mb-[100px]"
+          >
+            {user?.fname[0] || "A"}
           </Avatar>
         </Box>
         <Paper
@@ -64,42 +68,32 @@ const UserDetailsPage = () => {
         </Paper>
       </Box>
 
-      <Paper className="mt-16">
-        <Typography
-          className="text-2xl font-extrabold m-20"
-          color="text.secondary"
-        >
-          User&apos;s Projects
-        </Typography>
-        <Box className="overflow-auto mb-20">
-          <CustomTable
-            data={Projects}
-            handleClick={(n) => navigate("/dashboard/tasks/id")}
-            rows={Projects?.length > 0 ? projectRows : null}
-          />
-        </Box>
-      </Paper>
+      <CustomTable
+        className="mt-16"
+        title="User's Projects"
+        data={Projects}
+        handleClick={(n) => navigate(`/dashboard/projects/${n.id}`)}
+        rows={
+          Projects?.length > 0
+            ? projectRows.filter((row) => !["actions"].includes(row.id))
+            : null
+        }
+      />
 
-      <Paper className="mt-16">
-        <Typography
-          className="text-2xl font-extrabold m-20"
-          color="text.secondary"
-        >
-          User&apos;s Tasks
-        </Typography>
-        <Box className="overflow-auto mb-20">
-          <CustomTable
-            name="users"
-            data={Tasks}
-            handleClick={(n) => navigate("/dashboard/users/id")}
-            rows={
-              Tasks.length > 0
-                ? tasksRows.filter((row) => row.id !== "Project")
-                : null
-            }
-          />
-        </Box>
-      </Paper>
+      <CustomTable
+        className="mt-16"
+        title="User's Tasks"
+        name="users"
+        data={Tasks}
+        handleClick={(n) => navigate(`/dashboard/tasks/${n.id}`)}
+        rows={
+          Tasks.length > 0
+            ? tasksRows.filter(
+                (row) => !["Project", "actions"].includes(row.id)
+              )
+            : null
+        }
+      />
     </Box>
   )
 }

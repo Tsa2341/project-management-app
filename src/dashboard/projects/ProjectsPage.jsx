@@ -1,22 +1,21 @@
 import AddRoundedIcon from "@mui/icons-material/AddRounded"
+import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded"
+import EditIcon from "@mui/icons-material/Edit"
 import { Box, Button, IconButton, Paper, Typography } from "@mui/material"
-import React, { PureComponent, useEffect, useState } from "react"
+import React, { useEffect, useState } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom"
 import Header from "../../components/Header"
 import StatusDot from "../../components/StatusDot"
 import CustomTable from "../../components/table/CustomTable"
 import {
-  getAllProjects,
   selectAllProjects,
   setSelectedProject
 } from "../../store/reducers/projects.reducer"
 import formatDate from "../../utils/formatDate"
 import ProjectCreateModal from "./partials/ProjectCreateModal"
-import EditIcon from "@mui/icons-material/Edit"
-import DeleteForeverRoundedIcon from "@mui/icons-material/DeleteForeverRounded"
-import ProjectEditModal from "./partials/ProjectEditModal"
 import ProjectDeleteModal from "./partials/ProjectDeleteModal"
+import ProjectEditModal from "./partials/ProjectEditModal"
 
 export const ProjectsActions = ({ project }) => {
   const dispatch = useDispatch()

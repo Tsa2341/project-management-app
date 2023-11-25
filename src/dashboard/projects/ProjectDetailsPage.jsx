@@ -199,7 +199,7 @@ const ProjectDetailsPage = () => {
         className="mt-16"
         title="Project's Tasks"
         data={Tasks}
-        handleClick={(n) => navigate("/dashboard/tasks/id")}
+        handleClick={(n) => navigate(`/dashboard/tasks/${n.id}`)}
         rows={Tasks.length > 0 ? tasksRows : null}
       />
 
@@ -208,7 +208,7 @@ const ProjectDetailsPage = () => {
         title="Project's Users"
         name="users"
         data={Users}
-        handleClick={(n) => navigate("/dashboard/users/id")}
+        handleClick={(n) => navigate(`/dashboard/users/${n.id}`)}
         rows={Users.length > 0 ? usersRow : null}
       />
     </Box>

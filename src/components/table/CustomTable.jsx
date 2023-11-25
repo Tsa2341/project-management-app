@@ -1,5 +1,6 @@
 import {
   Box,
+  IconButton,
   Paper,
   Stack,
   Table,
@@ -15,6 +16,7 @@ import Loading from "../Loading"
 import CustomTableHead from "./CustomTableHead"
 import TableInput from "../TableInput"
 import clsx from "clsx"
+import * as XLSX from "xlsx"
 
 const CustomTableMain = ({
   name = "data",
@@ -48,8 +50,14 @@ const CustomTableMain = ({
   useEffect(() => {
     if (searchText.length !== 0) {
       setFilteredData(
-        _.filter(data, (item) =>
-          item.name.toLowerCase().includes(searchText.toLowerCase())
+        _.filter(
+          data,
+          (item) =>
+            item?.name?.toLowerCase().includes(searchText.toLowerCase()) ||
+            item?.fname?.toLowerCase().includes(searchText.toLowerCase()) ||
+            item?.lname?.toLowerCase().includes(searchText.toLowerCase()) ||
+            item?.username?.toLowerCase().includes(searchText.toLowerCase()) ||
+            item?.description?.toLowerCase().includes(searchText.toLowerCase())
         )
       )
       setPage(0)
@@ -111,42 +119,44 @@ const CustomTableMain = ({
                 }
               ],
               [order.direction]
-            ).map((n) => {
-              return (
-                <TableRow
-                  className="h-72 cursor-pointer"
-                  hover
-                  tabIndex={-1}
-                  key={n.id}
-                  onClick={(event) => handleClick(n, event)}
-                >
-                  <TableCell
-                    key="-"
-                    className="p-4 md:p-16"
-                    component="th"
-                    scope="row"
-                  />
-                  {rows.map((row) => (
+            )
+              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+              .map((n) => {
+                return (
+                  <TableRow
+                    className="h-72 cursor-pointer"
+                    hover
+                    tabIndex={-1}
+                    key={n.id}
+                    onClick={(event) => handleClick(n, event)}
+                  >
                     <TableCell
-                      key={row.id}
+                      key="-"
                       className="p-4 md:p-16"
                       component="th"
                       scope="row"
-                      align={row.align}
-                      {...(row.disablePadding && { padding: "none" })}
-                    >
-                      {row.format ? row.format(n[row.id], n) : n[row.id]}
-                    </TableCell>
-                  ))}
-                  <TableCell
-                    key="--"
-                    className="p-4 md:p-16"
-                    component="th"
-                    scope="row"
-                  />
-                </TableRow>
-              )
-            })}
+                    />
+                    {rows.map((row) => (
+                      <TableCell
+                        key={row.id}
+                        className="p-4 md:p-16"
+                        component="th"
+                        scope="row"
+                        align={row.align}
+                        {...(row.disablePadding && { padding: "none" })}
+                      >
+                        {row.format ? row.format(n[row.id], n) : n[row.id]}
+                      </TableCell>
+                    ))}
+                    <TableCell
+                      key="--"
+                      className="p-4 md:p-16"
+                      component="th"
+                      scope="row"
+                    />
+                  </TableRow>
+                )
+              })}
           </TableBody>
         </Table>
       </Box>
@@ -179,6 +189,23 @@ const CustomTable = ({
     setSearchText(e.target.value)
   }
 
+  const downloadExcel = (data) => {
+    const newData = data.map((row) => {
+      delete row.tableData
+      return row
+    })
+
+    const workSheet = XLSX.utils.json_to_sheet(newData)
+    const workBook = XLSX.utils.book_new()
+    XLSX.utils.book_append_sheet(workBook, workSheet, "data")
+    //Buffer
+    let buf = XLSX.write(workBook, { bookType: "xlsx", type: "buffer" })
+    //Binary string
+    XLSX.write(workBook, { bookType: "xlsx", type: "binary" })
+    //Download
+    XLSX.writeFile(workBook, "Data.xlsx")
+  }
+
   return (
     <Paper className={clsx(className)} {...props}>
       <Stack
@@ -193,8 +220,26 @@ const CustomTable = ({
             {title}
           </Typography>
         </Box>
-        <Box>
+        <Box className="flex flex-row items-center gap-2">
           <TableInput {...{ searchText, handleChange }} />
+          <IconButton
+            onClick={() => {
+              downloadExcel(data)
+            }}
+          >
+            <svg
+              className="text-black"
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+            >
+              <path
+                fill="currentColor"
+                d="m2.859 2.878l12.57-1.796a.5.5 0 0 1 .571.495v20.847a.5.5 0 0 1-.57.495L2.858 21.123a1 1 0 0 1-.859-.99V3.868a1 1 0 0 1 .859-.99ZM17 3h4a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1h-4V3Zm-6.8 9L13 8h-2.4L9 10.286L7.4 8H5l2.8 4L5 16h2.4L9 13.714L10.6 16H13l-2.8-4Z"
+              />
+            </svg>
+          </IconButton>
         </Box>
       </Stack>
 

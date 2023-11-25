@@ -52,7 +52,9 @@ export const deleteProject = createAsyncThunk(
   }
 )
 
-const projectsAdapter = createEntityAdapter()
+const projectsAdapter = createEntityAdapter({
+  sortComparer: (a, b) => (a.createdAt < b.createdAt ? 1 : -1)
+})
 
 export const { selectAll: selectAllProjects, selectById: selectProjectById } =
   projectsAdapter.getSelectors(({ projects }) => projects)
