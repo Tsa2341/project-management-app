@@ -21,7 +21,9 @@ function CustomTableHead({ rows, order, onRequestSort }) {
             }}
             padding="none"
             className="w-40 md:w-64 text-center z-99"
-          ></TableCell>
+          >
+            <span className="cursor-pointer">#</span>
+          </TableCell>
           {rows.map((row) => {
             return (
               <TableCell

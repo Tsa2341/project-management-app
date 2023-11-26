@@ -1,13 +1,28 @@
-import React from "react"
-import DetailsHeader from "../../components/DetailsHeader"
 import { Box, IconButton, Paper, Typography } from "@mui/material"
+import React from "react"
 import { useSelector } from "react-redux"
-import { selectTaskById } from "../../store/reducers/tasks.reducer"
-import { Link, useNavigate, useParams } from "react-router-dom"
-import CustomTable from "../../components/table/CustomTable"
+import { useNavigate, useParams } from "react-router-dom"
+import DetailsHeader from "../../components/DetailsHeader"
 import Loading from "../../components/Loading"
-import { projectRows } from "../projects/ProjectsPage"
+import CustomTable from "../../components/table/CustomTable"
+import { selectTaskById } from "../../store/reducers/tasks.reducer"
 import { userRows } from "../users/UsersPage"
+
+export function downloadFile(url) {
+  const fileName = url.split("/").slice(-1)[0]
+
+  fetch(url)
+    .then((res) => res.blob())
+    .then((res) => {
+      const aElement = document.createElement("a")
+      aElement.setAttribute("download", fileName)
+      const href = URL.createObjectURL(res)
+      aElement.href = href
+      aElement.setAttribute("target", "_blank")
+      aElement.click()
+      URL.revokeObjectURL(href)
+    })
+}
 
 const TaskDetailsPage = () => {
   const navigate = useNavigate()
@@ -18,20 +33,6 @@ const TaskDetailsPage = () => {
 
   const { name, status, description, Users, Projects, file } = task
 
-  function downloadFile(url, fileName = "fileName.pdf") {
-    fetch(url)
-      .then((res) => res.blob())
-      .then((res) => {
-        const aElement = document.createElement("a")
-        aElement.setAttribute("download", fileName)
-        const href = URL.createObjectURL(res)
-        aElement.href = href
-        aElement.setAttribute("target", "_blank")
-        aElement.click()
-        URL.revokeObjectURL(href)
-      })
-  }
-
   return (
     <Box className="w-full h-full p-10 sm:p-[30px] flex flex-col">
       <DetailsHeader {...{ status, to: "/dashboard/tasks", title: name }} />
@@ -41,13 +42,17 @@ const TaskDetailsPage = () => {
         <Box className="mt-20 bg-black/20 p-10 rounded-md flex flex-row gap-4 items-center justify-between">
           <Box className="flex flex-row gap-4 items-center truncate">
             <Typography className="font-semibold">Attached File</Typography>
-            <Typography color="secondary" className="text-sm">
-              {file}
+            <Typography
+              color={file ? "secondary" : "text.secondary"}
+              className="text-sm"
+            >
+              {file || "No attached file"}
             </Typography>
           </Box>
           <IconButton
+            disabled={!file}
             className="bg-white rounded aspect-square"
-            onClick={() => downloadFile(file)}
+            onClick={() => file && downloadFile(file)}
           >
             <Box>
               <svg

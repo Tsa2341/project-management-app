@@ -27,7 +27,7 @@ const CustomTableMain = ({
 }) => {
   const [filteredData, setFilteredData] = useState(data)
   const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
+  const [rowsPerPage, setRowsPerPage] = useState(5)
   const [order, setOrder] = useState({
     direction: "asc",
     id: null
@@ -121,7 +121,7 @@ const CustomTableMain = ({
               [order.direction]
             )
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((n) => {
+              .map((n, i) => {
                 return (
                   <TableRow
                     className="h-72 cursor-pointer"
@@ -135,7 +135,12 @@ const CustomTableMain = ({
                       className="p-4 md:p-16"
                       component="th"
                       scope="row"
-                    />
+                      align="center"
+                    >
+                      <span className="font-bold">
+                        {i + 1 + page * rowsPerPage}.
+                      </span>
+                    </TableCell>
                     {rows.map((row) => (
                       <TableCell
                         key={row.id}
@@ -169,6 +174,14 @@ const CustomTableMain = ({
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+        rowsPerPageOptions={[5, 10, 15, 25, 50, 100]}
+        slotProps={{
+          select: {
+            classes: {
+              root: "pt-[7px]"
+            }
+          }
+        }}
       />
     </>
   )

@@ -16,6 +16,7 @@ import formatDate from "../../utils/formatDate"
 import TaskCreateModal from "./partials/TaskCreateModal"
 import TaskDeleteModal from "./partials/TaskDeleteModal"
 import TaskEditModal from "./partials/TaskEditModal"
+import { downloadFile } from "./TaskDetailsPage"
 
 export const TasksActions = ({ task }) => {
   const dispatch = useDispatch()
@@ -73,6 +74,14 @@ export const tasksRows = [
     )
   },
   {
+    id: "Users",
+    align: "center",
+    disablePadding: false,
+    label: "Users",
+    sort: false,
+    format: (usersArr) => usersArr.map((u) => u.username).join(",")
+  },
+  {
     id: "start_date",
     align: "center",
     disablePadding: false,
@@ -104,9 +113,32 @@ export const tasksRows = [
     sort: true,
     format: (value) => {
       return value ? (
-        <Typography color="secondary" className="max-w-[300px] break-all">
-          {value}
-        </Typography>
+        <IconButton
+          color="secondary"
+          disabled={!value}
+          className="bg-white rounded aspect-square"
+          onClick={(e) => {
+            e.stopPropagation()
+            return value && downloadFile(value)
+          }}
+        >
+          <Box>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth="1.5"
+              stroke="currentColor"
+              className="w-20 h-20"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3"
+              />
+            </svg>
+          </Box>
+        </IconButton>
       ) : (
         "No FIle"
       )
