@@ -1,4 +1,4 @@
-import { Box, IconButton, Paper, Typography } from "@mui/material"
+import { Avatar, Box, IconButton, Paper, Typography } from "@mui/material"
 import React from "react"
 import { useSelector } from "react-redux"
 import { useNavigate, useParams } from "react-router-dom"
@@ -6,7 +6,9 @@ import DetailsHeader from "../../components/DetailsHeader"
 import Loading from "../../components/Loading"
 import CustomTable from "../../components/table/CustomTable"
 import { selectTaskById } from "../../store/reducers/tasks.reducer"
-import { userRows } from "../users/UsersPage"
+import CountryFlag from "../../components/CountryFlag"
+import StatusDot from "../../components/StatusDot"
+import formatDate from "../../utils/formatDate"
 
 export function downloadFile(url) {
   const fileName = url.split("/").slice(-1)[0]
@@ -23,6 +25,101 @@ export function downloadFile(url) {
       URL.revokeObjectURL(href)
     })
 }
+
+export const userRows = [
+  {
+    id: "avatar",
+    align: "left",
+    disablePadding: false,
+    label: "Image",
+    sort: true,
+    format: (url, row) => {
+      return (
+        <Avatar className="w-40 h-40" src={url} alt={row.fname + "avatar"}>
+          {row.fname[0] || "A"}
+        </Avatar>
+      )
+    }
+  },
+  {
+    id: "username",
+    align: "left",
+    disablePadding: false,
+    label: "User Name",
+    sort: true
+  },
+  {
+    id: "fname",
+    align: "center",
+    disablePadding: false,
+    label: "First Name",
+    sort: true
+  },
+  {
+    id: "lname",
+    align: "center",
+    disablePadding: false,
+    label: "Phone NUmber",
+    sort: true
+  },
+  {
+    id: "location",
+    align: "center",
+    disablePadding: false,
+    label: "Address",
+    sort: true
+  },
+  {
+    id: "phone",
+    align: "center",
+    disablePadding: false,
+    label: "Phone Number",
+    sort: true
+  },
+  {
+    id: "country",
+    align: "center",
+    disablePadding: false,
+    label: "Country",
+    sort: true,
+    format: (country) => {
+      return (
+        <span>
+          <CountryFlag country={country} />
+          {country}
+        </span>
+      )
+    }
+  },
+  {
+    id: "role",
+    align: "center",
+    disablePadding: false,
+    label: "Role",
+    sort: true
+  },
+  {
+    id: "status",
+    align: "center",
+    disablePadding: false,
+    label: "Status",
+    sort: true,
+    format: (value) => (
+      <div className="flex flex-row items-center justify-center">
+        <StatusDot status={value} />
+        {value ? "Active" : "Inactive"}
+      </div>
+    )
+  },
+  {
+    id: "createdAt",
+    align: "center",
+    disablePadding: false,
+    label: "Joined",
+    sort: true,
+    format: formatDate
+  }
+]
 
 const TaskDetailsPage = () => {
   const navigate = useNavigate()
@@ -78,7 +175,7 @@ const TaskDetailsPage = () => {
         className="mt-16"
         title="Users"
         data={Users}
-        handleClick={(n) => navigate(`/dashboard/users/${n.id}`)}
+        // handleClick={(n) => navigate(`/dashboard/users/${n.id}`)}
         rows={
           Users.length > 0
             ? userRows.filter((r) => !["actions"].includes(r.id))

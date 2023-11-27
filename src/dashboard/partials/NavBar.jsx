@@ -197,13 +197,6 @@ const NavBarContent = ({ setOpen, open }) => {
               title: "Tasks"
             }}
           />
-          <NavBarItem
-            item={{
-              url: "/dashboard/users",
-              icon: <GroupIcon size="20" />,
-              title: "Users"
-            }}
-          />
 
           <Divider variant="fullWidth" className=" bg-white mt-auto mb-8" />
           <NavBarItem

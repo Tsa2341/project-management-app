@@ -39,6 +39,18 @@ export const updateAuthUser = createAsyncThunk(
   }
 )
 
+export const updateAuthUserPassword = createAsyncThunk(
+  "auth/updateAuthUserPassword",
+  async ({ data, id }) => {
+    const formData = new FormData()
+
+    const res = await catchAxiosError(
+      async () =>
+        await axiosInstance.patch(`/user/change_password/${id}`, formData)
+    )
+  }
+)
+
 const initialState = {
   user: null
 }

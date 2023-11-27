@@ -5,6 +5,8 @@ import {
   Button,
   Chip,
   FormControl,
+  FormControlLabel,
+  FormLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -12,6 +14,8 @@ import {
   Modal,
   OutlinedInput,
   Paper,
+  Radio,
+  RadioGroup,
   Select,
   Stack,
   TextField,
@@ -98,11 +102,12 @@ const TaskCreateModal = () => {
   const onSubmit = (form) => {
     const formData = { ...form }
     formData.file = file
-    formData.users = JSON.stringify(
+    formData.assignees = JSON.stringify(
       formData.users.map(
         (formUser) => users.find((n) => n.username === formUser).id
       )
     )
+    delete formData.users
 
     setLoading(true)
     dispatch(createTask(formData)).then(({ error, payload }) => {
@@ -247,24 +252,33 @@ const TaskCreateModal = () => {
                 name="priority"
                 control={control}
                 render={({ field }) => (
-                  <FormControl required fullWidth>
-                    <InputLabel id="priority">Task Priority</InputLabel>
-                    <Select
+                  <FormControl fullWidth className="mb-24">
+                    <FormLabel id="priority-radio-group-label">
+                      Priority
+                    </FormLabel>
+                    <RadioGroup
                       {...field}
-                      id="priority"
-                      className="mb-24"
-                      label="Task Priority"
-                      autoFocus
-                      error={!!errors.priority}
-                      helperText={!!errors.priority && errors.priority.message}
-                      variant="outlined"
-                      required
-                      fullWidth
+                      aria-labelledby="priority-radio-group-label"
+                      defaultValue="NORMAL"
+                      name="priority"
+                      row
                     >
-                      <MenuItem value="HIGH">High</MenuItem>
-                      <MenuItem value="NORMAL">Normal</MenuItem>
-                      <MenuItem value="LOW">Low</MenuItem>
-                    </Select>
+                      <FormControlLabel
+                        value="HIGH"
+                        control={<Radio />}
+                        label="High"
+                      />
+                      <FormControlLabel
+                        value="NORMAL"
+                        control={<Radio />}
+                        label="Normal"
+                      />
+                      <FormControlLabel
+                        value="LOW"
+                        control={<Radio />}
+                        label="Low"
+                      />
+                    </RadioGroup>
                   </FormControl>
                 )}
               />

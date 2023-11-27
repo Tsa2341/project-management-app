@@ -37,8 +37,7 @@ const schema = yup.object().shape({
   lname: yup.string(),
   phone: yup.string(),
   country: yup.string(),
-  location: yup.string(),
-  password: yup.string()
+  location: yup.string()
 })
 
 const defaultValues = {
@@ -46,8 +45,7 @@ const defaultValues = {
   lname: "",
   phone: "",
   country: "Rwanda",
-  location: "",
-  password: ""
+  location: ""
 }
 
 const EditProfileModal = () => {
@@ -300,25 +298,6 @@ const EditProfileModal = () => {
                     type="text"
                     error={!!errors.location}
                     helperText={errors?.location?.message}
-                    variant="outlined"
-                    required
-                    fullWidth
-                  />
-                )}
-              />
-            </GridItem>
-            <GridItem>
-              <Controller
-                name="password"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className="mb-24"
-                    label="Password"
-                    type="password"
-                    error={!!errors.password}
-                    helperText={errors?.password?.message}
                     variant="outlined"
                     required
                     fullWidth

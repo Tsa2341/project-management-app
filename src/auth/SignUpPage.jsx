@@ -37,10 +37,20 @@ const schema = yup.object().shape({
     .string()
     .email("You must enter a valid email")
     .required("You must enter your email"),
-  password: yup.string().required("Please enter your password."),
+  password: yup
+    .string()
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/,
+      "Password must Contain at least 6 Characters, One Uppercase, One Lowercase and One Number"
+    )
+    .required("Please enter your password."),
   passwordConfirm: yup
     .string()
     .oneOf([yup.ref("password"), null], "Passwords must match")
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{6,})/,
+      "Password must Contain at least 6 Characters, One Uppercase, One Lowercase and One Number"
+    )
 })
 
 const defaultValues = {

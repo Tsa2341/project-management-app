@@ -22,6 +22,7 @@ import {
   createProject,
   getAllProjects
 } from "../../../store/reducers/projects.reducer"
+import DescriptionTextField from "../../../components/DescriptionTextField"
 
 const schema = yup.object().shape({
   name: yup.string().required("You must enter the project name"),
@@ -134,29 +135,6 @@ const ProjectCreateModal = () => {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className="mb-24"
-                    label="Description"
-                    autoFocus
-                    type="text"
-                    error={!!errors.description}
-                    helperText={errors?.description?.message}
-                    variant="outlined"
-                    fullWidth
-                    required
-                    multiline
-                    minRows={2}
-                  />
-                )}
-              />
-            </Grid>
-
             <Grid item xs={12} sm={6}>
               <Controller
                 name="start_date"
@@ -219,6 +197,20 @@ const ProjectCreateModal = () => {
                       </Typography>
                     )}
                   </div>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <DescriptionTextField
+                    className="mb-24"
+                    inputProps={{ ...field }}
+                    errors={errors}
+                  />
                 )}
               />
             </Grid>

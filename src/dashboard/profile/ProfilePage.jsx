@@ -9,17 +9,20 @@ import Loading from "../../components/Loading"
 import { selectUser } from "../../store/reducers/auth.reducer"
 import formatDate from "../../utils/formatDate"
 import EditProfileModal from "./partials/EditProfileModal"
+import EditPasswordProfileModal from "./partials/EditPasswordProfileModal"
 
 const ProfilePage = () => {
   const user = useSelector(selectUser)
   const location = useLocation()
-  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [editModalOpen, setEditModalOpen] = useState(null)
 
   useEffect(() => {
     if (location.pathname === "/dashboard/profile/edit") {
-      setEditModalOpen(true)
+      setEditModalOpen("edit")
+    } else if (location.pathname === "/dashboard/profile/edit_password") {
+      setEditModalOpen("edit_password")
     } else {
-      setEditModalOpen(false)
+      setEditModalOpen(null)
     }
   }, [location.pathname])
 
@@ -40,8 +43,18 @@ const ProfilePage = () => {
               color="secondary"
               key={1}
             >
-              <EditIcon className="w-20" />
+              {/* <EditIcon className="w-20" /> */}
               <Typography className="ml-4">Edit Profile</Typography>
+            </Button>,
+            <Button
+              LinkComponent={Link}
+              to="/dashboard/profile/edit_password"
+              variant="contained"
+              color="secondary"
+              key={2}
+            >
+              {/* <EditIcon className="w-20" /> */}
+              <Typography className="ml-4">Edit Password</Typography>
             </Button>
           ]}
         />
@@ -86,7 +99,8 @@ const ProfilePage = () => {
           </Paper>
         </Box>
       </Box>
-      {editModalOpen && <EditProfileModal />}
+      {editModalOpen === "edit" && <EditProfileModal />}
+      {editModalOpen === "edit_password" && <EditPasswordProfileModal />}
     </>
   )
 }

@@ -28,20 +28,23 @@ import * as yup from "yup"
 import DescriptionTextField from "../../../components/DescriptionTextField"
 import { selectAllProjects } from "../../../store/reducers/projects.reducer"
 import { selectAllUsers } from "../../../store/reducers/users.reducer"
-import { selectSelectedTask } from "../../../store/reducers/tasks.reducer"
+import {
+  editTask,
+  getAllTasks,
+  selectSelectedTask
+} from "../../../store/reducers/tasks.reducer"
+import { toast } from "react-toastify"
 
 const schema = yup.object().shape({
-  name: yup.string().required("You must enter the task name"),
-  description: yup.string().required("You must enter the task description"),
-  start_date: yup.date().required("You must enter the task Start Date"),
-  end_date: yup.date().required("You must enter the task End Date"),
-  project_id: yup
-    .string()
-    .required("You must enter the project to associate to this task"),
-  users: yup
-    .array()
-    .required("You must enter the user to associate to this task"),
-  priority: yup.string().required("You must enter this task priority")
+  name: yup.string(),
+  description: yup.string(),
+  start_date: yup.date(),
+  end_date: yup
+    .date()
+    .min(yup.ref("start_date"), "End Date can't be before Start Date"),
+  project_id: yup.string(),
+  users: yup.array(),
+  priority: yup.string()
 })
 
 const defaultValues = {
@@ -66,8 +69,7 @@ const TaskEditModal = () => {
     control,
     setValue,
     formState: { errors },
-    handleSubmit,
-    watch
+    handleSubmit
   } = useForm({
     mode: "onSubmit",
     defaultValues,
@@ -79,34 +81,38 @@ const TaskEditModal = () => {
   }
 
   const onSubmit = (form) => {
-    // const formData = { ...form }
-    // formData.file = file.file
-    // formData.users = formData.users.map(
-    //   (formUser) => users.find((n) => n.username === formUser).id
-    // )
-    // setLoading(true)
-    // dispatch(editTask(formData)).then(({ error, payload }) => {
-    //   if (error) {
-    //     toast.error(error.message)
-    //     setLoading(false)
-    //   } else {
-    //     toast.success("Task editd Successfully!")
-    //     dispatch(getAllTasks()).then(({ error, payload }) => {
-    //       if (error) {
-    //         toast.error(error.message)
-    //       } else {
-    //         handleClose()
-    //       }
-    //       setLoading(false)
-    //     })
-    //   }
-    // })
+    const formData = { ...form }
+    file && (formData.file = file)
+    formData.assignees = JSON.stringify(
+      formData.users.map(
+        (formUser) => users.find((n) => n.username === formUser).id
+      )
+    )
+    delete formData.users
+
+    setLoading(true)
+    dispatch(editTask({ data: formData, id: task.id })).then(
+      ({ error, payload }) => {
+        if (error) {
+          toast.error(error.message)
+          setLoading(false)
+        } else {
+          toast.success("Task updated Successfully!")
+          dispatch(getAllTasks()).then(({ error, payload }) => {
+            if (error) {
+              toast.error(error.message)
+            } else {
+              handleClose()
+            }
+            setLoading(false)
+          })
+        }
+      }
+    )
   }
 
   useEffect(() => {
-    console.log("...=> task", task)
     if (task) {
-      console.log("task ...=> ", task)
       Object.keys(defaultValues).map((key) => {
         if (["end_date", "start_date"].includes(key)) {
           setValue(key, new Date(task[key]), {
