@@ -1,4 +1,5 @@
 import { yupResolver } from "@hookform/resolvers/yup"
+import AttachFileOutlinedIcon from "@mui/icons-material/AttachFileOutlined"
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded"
 import {
   Box,
@@ -19,34 +20,28 @@ import {
 } from "@mui/material"
 import { DatePicker } from "@mui/x-date-pickers"
 import { addDays } from "date-fns"
-import React, { memo, useState } from "react"
+import React, { memo, useEffect, useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { useDispatch, useSelector } from "react-redux"
 import { useNavigate } from "react-router-dom"
-import { toast } from "react-toastify"
 import * as yup from "yup"
+import DescriptionTextField from "../../../components/DescriptionTextField"
 import { selectAllProjects } from "../../../store/reducers/projects.reducer"
-import { editTask, getAllTasks } from "../../../store/reducers/tasks.reducer"
 import { selectAllUsers } from "../../../store/reducers/users.reducer"
-import handleReadFileAsync from "../../../utils/handleReadFileAsync"
+import { selectSelectedTask } from "../../../store/reducers/tasks.reducer"
 
 const schema = yup.object().shape({
   name: yup.string().required("You must enter the task name"),
   description: yup.string().required("You must enter the task description"),
-  start_date: yup
-    .date()
-    .min(new Date(), "Start Date can't be before now")
-    .required("You must enter the task Start Date"),
-  end_date: yup
-    .date()
-    .min(yup.ref("start_date"), "End Date can't be before Start Date")
-    .required("You must enter the task End Date"),
+  start_date: yup.date().required("You must enter the task Start Date"),
+  end_date: yup.date().required("You must enter the task End Date"),
   project_id: yup
     .string()
     .required("You must enter the project to associate to this task"),
   users: yup
     .array()
-    .required("You must enter the user to associate to this task")
+    .required("You must enter the user to associate to this task"),
+  priority: yup.string().required("You must enter this task priority")
 })
 
 const defaultValues = {
@@ -55,7 +50,8 @@ const defaultValues = {
   users: [],
   start_date: new Date(),
   end_date: new Date(addDays(new Date(), 1)),
-  project_id: ""
+  project_id: "",
+  priority: "NORMAL"
 }
 
 const TaskEditModal = () => {
@@ -63,10 +59,12 @@ const TaskEditModal = () => {
   const dispatch = useDispatch()
   const projects = useSelector(selectAllProjects)
   const users = useSelector(selectAllUsers)
+  const task = useSelector(selectSelectedTask)
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const {
     control,
+    setValue,
     formState: { errors },
     handleSubmit,
     watch
@@ -103,6 +101,36 @@ const TaskEditModal = () => {
     //     })
     //   }
     // })
+  }
+
+  useEffect(() => {
+    console.log("...=> task", task)
+    if (task) {
+      console.log("task ...=> ", task)
+      Object.keys(defaultValues).map((key) => {
+        if (["end_date", "start_date"].includes(key)) {
+          setValue(key, new Date(task[key]), {
+            shouldDirty: true,
+            shouldTouch: true
+          })
+        } else if (key === "users") {
+          setValue(
+            "users",
+            task.Users.map((u) => u.username),
+            {
+              shouldDirty: true,
+              shouldTouch: true
+            }
+          )
+        } else {
+          setValue(key, task[key], { shouldDirty: true, shouldTouch: true })
+        }
+      })
+    }
+  }, [task, users])
+
+  if (!task) {
+    return
   }
 
   return (
@@ -156,47 +184,6 @@ const TaskEditModal = () => {
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <Controller
-                name="description"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    {...field}
-                    className="mb-24"
-                    label="Description"
-                    autoFocus
-                    type="text"
-                    error={!!errors.description}
-                    helperText={errors?.description?.message}
-                    variant="outlined"
-                    fullWidth
-                    required
-                    multiline
-                    minRows={2}
-                  />
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <TextField
-                onChange={async (e) => {
-                  setFile(await handleReadFileAsync(e))
-                }}
-                className="mb-24"
-                label="File"
-                autoFocus
-                type="file"
-                error={!!errors.file}
-                helperText={errors?.file?.message}
-                InputLabelProps={{ shrink: true }}
-                variant="outlined"
-                fullWidth
-                required
-              />
-            </Grid>
-
             <Grid item xs={12} sm={6}>
               <Controller
                 name="start_date"
@@ -208,7 +195,6 @@ const TaskEditModal = () => {
                       label="Start Date"
                       variant="outlined"
                       error={!!errors.start_date}
-                      disablePast
                       slotProps={{
                         textField: {
                           required: true,
@@ -242,7 +228,6 @@ const TaskEditModal = () => {
                       label="End Date"
                       variant="outlined"
                       error={!!errors.end_date}
-                      minDate={new Date(watch("start_date"))}
                       slotProps={{
                         textField: {
                           required: true,
@@ -261,6 +246,34 @@ const TaskEditModal = () => {
                       </Typography>
                     )}
                   </div>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name="priority"
+                control={control}
+                render={({ field }) => (
+                  <FormControl required fullWidth>
+                    <InputLabel id="priority">Task Priority</InputLabel>
+                    <Select
+                      {...field}
+                      id="priority"
+                      className="mb-24"
+                      label="Task Priority"
+                      autoFocus
+                      error={!!errors.priority}
+                      helperText={!!errors.priority && errors.priority.message}
+                      variant="outlined"
+                      required
+                      fullWidth
+                    >
+                      <MenuItem value="HIGH">High</MenuItem>
+                      <MenuItem value="NORMAL">Normal</MenuItem>
+                      <MenuItem value="LOW">Low</MenuItem>
+                    </Select>
+                  </FormControl>
                 )}
               />
             </Grid>
@@ -302,7 +315,7 @@ const TaskEditModal = () => {
                 name="users"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth>
+                  <FormControl fullWidth className="mb-24">
                     <InputLabel id="users">Users</InputLabel>
                     <Select
                       {...field}
@@ -336,20 +349,84 @@ const TaskEditModal = () => {
                 )}
               />
             </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => (
+                  <DescriptionTextField
+                    className="mb-24"
+                    inputProps={{ ...field }}
+                    errors={errors}
+                  />
+                )}
+              />
+            </Grid>
           </Grid>
 
-          <Button
-            role="button"
-            variant="contained"
-            color="secondary"
-            className="w-full mt-24"
-            aria-label="Register"
-            disabled={loading}
-            type="submit"
-            size="large"
+          {file && (
+            <Box className=" bg-black/20 p-10 rounded-md flex flex-row gap-4 items-center justify-between">
+              <Typography>{file.name}</Typography>
+              <IconButton
+                className="bg-white rounded aspect-square mt-0"
+                onClick={() => {
+                  setFile(null)
+                }}
+              >
+                <CloseRoundedIcon className="w-20 h-20" />
+              </IconButton>
+            </Box>
+          )}
+
+          <Stack
+            direction="row"
+            gap={2}
+            className="items-center justify-between mt-24"
           >
-            Edit Task
-          </Button>
+            <input
+              accept=".pdf"
+              type="file"
+              id="pdf-file-upload"
+              className="hidden"
+              onChange={(e) => {
+                setFile(e.target.files[0])
+              }}
+              onClick={(event) => {
+                event.currentTarget.value = null
+              }}
+            ></input>
+            <IconButton component="label" htmlFor="pdf-file-upload">
+              <AttachFileOutlinedIcon />
+            </IconButton>
+            <Stack
+              direction="row"
+              gap={2}
+              className="items-center justify-between"
+            >
+              <Button
+                role="button"
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                type="reset"
+                size="medium"
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                role="button"
+                variant="contained"
+                color="secondary"
+                disabled={loading}
+                type="submit"
+                size="medium"
+              >
+                Submit
+              </Button>
+            </Stack>
+          </Stack>
         </form>
       </Paper>
     </Modal>

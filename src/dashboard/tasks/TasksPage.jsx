@@ -17,6 +17,8 @@ import TaskCreateModal from "./partials/TaskCreateModal"
 import TaskDeleteModal from "./partials/TaskDeleteModal"
 import TaskEditModal from "./partials/TaskEditModal"
 import { downloadFile } from "./TaskDetailsPage"
+import StraightRoundedIcon from "@mui/icons-material/StraightRounded"
+import { capitalize } from "lodash"
 
 export const TasksActions = ({ task }) => {
   const dispatch = useDispatch()
@@ -42,6 +44,18 @@ export const TasksActions = ({ task }) => {
         <DeleteForeverRoundedIcon />
       </IconButton>
     </Box>
+  )
+}
+
+export const PriorityIcon = ({ value }) => {
+  return (
+    <div className="flex flex-row items-center justify-center">
+      {value === "LOW" && (
+        <StraightRoundedIcon color="error" className="rotate-180" />
+      )}
+      {value === "HIGH" && <StraightRoundedIcon color="success" />}
+      <Typography>{capitalize(value)}</Typography>
+    </div>
   )
 }
 
@@ -74,12 +88,25 @@ export const tasksRows = [
     )
   },
   {
+    id: "priority",
+    align: "center",
+    disablePadding: false,
+    label: "Priority",
+    sort: true,
+    format: (value) => (
+      <div className="flex flex-row items-center justify-center">
+        <PriorityIcon value={value} />
+      </div>
+    )
+  },
+  {
     id: "Users",
     align: "center",
     disablePadding: false,
     label: "Users",
     sort: false,
-    format: (usersArr) => usersArr.map((u) => u.username).join(",")
+    format: (usersArr) =>
+      usersArr?.length > 0 ? usersArr.map((u) => u.username).join(",") : "None"
   },
   {
     id: "start_date",

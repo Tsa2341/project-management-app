@@ -15,12 +15,12 @@ import GuardAuthRoot from "./GuardAuthRoot"
 import { useState } from "react"
 
 const schema = yup.object().shape({
-  username: yup.string().required("You must enter a username"),
+  email: yup.string().email().required("You must enter a email"),
   password: yup.string().required("Please enter your password.")
 })
 
 const defaultValues = {
-  username: "",
+  email: "",
   password: ""
 }
 
@@ -40,9 +40,9 @@ function SignInPage() {
     resolver: yupResolver(schema)
   })
 
-  function onSubmit({ username, password }) {
+  function onSubmit({ email, password }) {
     setLoading(true)
-    dispatch(authLogin({ username, password })).then(({ error, payload }) => {
+    dispatch(authLogin({ email, password })).then(({ error, payload }) => {
       if (error) {
         toast.error(error.message)
       } else {
@@ -76,7 +76,7 @@ function SignInPage() {
               onSubmit={handleSubmit(onSubmit)}
             >
               <Controller
-                name="username"
+                name="email"
                 control={control}
                 render={({ field }) => (
                   <TextField
@@ -84,9 +84,9 @@ function SignInPage() {
                     className="mb-24"
                     label="Email"
                     autoFocus
-                    type="text"
-                    error={!!errors.username}
-                    helperText={errors?.username?.message}
+                    type="email"
+                    error={!!errors.email}
+                    helperText={errors?.email?.message}
                     variant="outlined"
                     required
                     fullWidth

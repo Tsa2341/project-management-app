@@ -224,18 +224,33 @@ const ProjectCreateModal = () => {
             </Grid>
           </Grid>
 
-          <Button
-            role="button"
-            variant="contained"
-            color="secondary"
-            className="w-full mt-24"
-            aria-label="Register"
-            disabled={loading}
-            type="submit"
-            size="large"
+          <Stack
+            direction="row"
+            gap={2}
+            className="items-center justify-between"
           >
-            Create Project
-          </Button>
+            <Button
+              role="button"
+              variant="contained"
+              color="primary"
+              disabled={loading}
+              type="reset"
+              size="medium"
+              onClick={handleClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              role="button"
+              variant="contained"
+              color="secondary"
+              disabled={loading}
+              type="submit"
+              size="medium"
+            >
+              Submit
+            </Button>
+          </Stack>
         </form>
       </Paper>
     </Modal>

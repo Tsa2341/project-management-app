@@ -69,7 +69,7 @@ const TaskDeleteModal = () => {
         </Typography>
         <Typography>If you consent, click the button below.</Typography>
 
-        <Button
+        {/* <Button
           onClick={handleClick}
           variant="contained"
           color="secondary"
@@ -79,7 +79,33 @@ const TaskDeleteModal = () => {
           size="large"
         >
           Delete Task
-        </Button>
+        </Button> */}
+        <Stack
+          direction="row"
+          gap={2}
+          className="items-center justify-between mt-24"
+        >
+          <Button
+            role="button"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            size="medium"
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleClick}
+            role="button"
+            variant="contained"
+            color="secondary"
+            disabled={loading}
+            size="medium"
+          >
+            Delete Task
+          </Button>
+        </Stack>
       </Paper>
     </Modal>
   )

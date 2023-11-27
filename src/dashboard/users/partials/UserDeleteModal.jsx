@@ -69,17 +69,32 @@ const UserDeleteModal = () => {
         </Typography>
         <Typography>If you consent, click the button below.</Typography>
 
-        <Button
-          onClick={handleClick}
-          variant="contained"
-          color="secondary"
-          className="w-full mt-24"
-          aria-label="Register"
-          disabled={loading}
-          size="large"
+        <Stack
+          direction="row"
+          gap={2}
+          className="items-center justify-between mt-24"
         >
-          Delete User
-        </Button>
+          <Button
+            role="button"
+            variant="contained"
+            color="primary"
+            disabled={loading}
+            size="medium"
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleClick}
+            role="button"
+            variant="contained"
+            color="secondary"
+            disabled={loading}
+            size="medium"
+          >
+            Delete User
+          </Button>
+        </Stack>
       </Paper>
     </Modal>
   )

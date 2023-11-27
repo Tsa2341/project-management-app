@@ -188,22 +188,7 @@ const UsersPage = () => {
   return (
     <>
       <Box className="w-full h-full p-10 sm:p-[30px] flex flex-col">
-        <Header
-          title="Users"
-          actions={[
-            <Button
-              variant="contained"
-              color="secondary"
-              key={1}
-              onClick={() => {
-                navigate("/dashboard/users/create")
-              }}
-            >
-              <AddRoundedIcon className="w-40" />
-              <Typography>Create User</Typography>
-            </Button>
-          ]}
-        />
+        <Header title="Users" />
         <Paper className="overflow-auto mt-14 min-h-36" elevation={0}>
           <CustomTable rows={userRows} handleClick={handleClick} data={users} />
         </Paper>
