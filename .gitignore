@@ -23,3 +23,6 @@ dist-ssr
 
 # App env
 .env
+
+# builds
+.yarn
