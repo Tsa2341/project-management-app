@@ -20,8 +20,8 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  email: "",
-  password: ""
+  email: import.meta.env.VITE_USER_EMAIL || "",
+  password: import.meta.env.VITE_USER_PASSWORD || ""
 }
 
 function SignInPage() {
